@@ -4,15 +4,12 @@ import android.content.Context
 import android.graphics.Rect
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.util.Log
-import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import android.widget.Toast
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.GridLayoutManager
-import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import fr.esgi.deezerplayer.data.api.DeezerProvider
 import fr.esgi.deezerplayer.data.api.Listener
@@ -46,18 +43,6 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun getAlbums() {
-        /*val data = arrayListOf<Album>()
-        data.add(Album("OUHOO"))
-        data.add(Album("Maes"))
-        data.add(Album("Heuss L'enfoiré"))
-        data.add(Album("Jul"))
-        data.add(Album("Koba LaE"))
-        data.add(Album("Nek Le fenek"))
-        data.add(Album("Ken Ninho"))
-        data.add(Album("Magic System"))
-        data.add(Album("Android Life"))
-        data.add(Album("Zifukoro"))
-        albumsAdapter.data = data*/
         DeezerProvider.getAlbums(object : Listener<List<Album>> {
             override fun onSuccess(data: List<Album>) {
                 albumsAdapter.data = data
