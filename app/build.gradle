@@ -1,6 +1,10 @@
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
+apply plugin: 'kotlin-kapt'
+apply plugin: 'androidx.navigation.safeargs.kotlin'
+
+ext.navigation_version = '2.2.1'
 
 android {
     compileSdkVersion 29
@@ -34,6 +38,10 @@ android {
         }
     }
 
+    dataBinding {
+        enabled = true
+    }
+
 }
 
 dependencies {
@@ -42,6 +50,8 @@ dependencies {
     implementation 'androidx.appcompat:appcompat:1.1.0'
     implementation 'androidx.core:core-ktx:1.2.0'
     implementation 'androidx.constraintlayout:constraintlayout:1.1.3'
+    implementation 'androidx.legacy:legacy-support-v4:1.0.0'
+    implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.2.0'
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'androidx.test.ext:junit:1.1.1'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
@@ -49,17 +59,34 @@ dependencies {
     implementation "androidx.appcompat:appcompat:1.2.0-alpha03"
     implementation 'androidx.constraintlayout:constraintlayout:2.0.0-beta4'
     implementation "androidx.recyclerview:recyclerview:1.1.0"
-    implementation 'androidx.lifecycle:lifecycle-extensions:2.1.0'
     implementation 'androidx.cardview:cardview:1.0.0'
+    implementation 'com.google.android.material:material:1.2.0-alpha01'
 
     implementation "com.squareup.picasso:picasso:2.71828"
     implementation 'com.facebook.shimmer:shimmer:0.1.0@aar'
 
-    //Retrofit
-    implementation "com.squareup.retrofit2:retrofit:2.5.0"
-    implementation "com.squareup.retrofit2:converter-gson:2.5.0"
+    // Coroutines
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.3.0'
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.0'
 
-    //OkHttp 3
-    implementation "com.squareup.okhttp3:okhttp:4.4.0"
+    // Dependency Injection: Kodein ou Dagger2
+    //implementation 'org.kodein.di:kodein-di-generic-jvm:6.2.1'
+    //implementation 'org.kodein.di:kodein-di-framework-android-x:6.2.1'
+
+    // ViewModel + LiveData
+    implementation 'androidx.lifecycle:lifecycle-extensions:2.1.0'
+
+    //Retrofit + GSON
+    implementation "com.squareup.retrofit2:retrofit:2.6.0"
+    implementation "com.squareup.retrofit2:converter-gson:2.6.0"
+
+    // Navigation Architecture
+    implementation "androidx.navigation:navigation-fragment:$navigation_version"
+    implementation "androidx.navigation:navigation-ui:$navigation_version"
+    implementation "androidx.navigation:navigation-runtime-ktx:$navigation_version"
+    implementation "androidx.navigation:navigation-fragment-ktx:$navigation_version"
+    implementation "androidx.navigation:navigation-ui-ktx:$navigation_version"
+
+    implementation 'androidx.fragment:fragment-ktx:1.2.2'
 
 }
