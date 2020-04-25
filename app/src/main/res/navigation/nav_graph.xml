@@ -9,6 +9,21 @@
         android:id="@+id/albumListFragment"
         android:name="fr.esgi.deezerplayer.view.albumlist.AlbumListFragment"
         android:label="AlbumListFragment"
-        tools:layout="@layout/album_list_fragment" />
+        tools:layout="@layout/album_list_fragment" >
+        <action
+            android:id="@+id/action_albumListFragment_to_albumDetailFragment"
+            app:destination="@id/albumDetailFragment"
+            app:enterAnim="@android:anim/slide_in_left"
+            app:exitAnim="@android:anim/slide_out_right" />
+    </fragment>
+    <fragment
+        android:id="@+id/albumDetailFragment"
+        android:name="fr.esgi.deezerplayer.view.albumdetail.AlbumDetailFragment"
+        android:label="album_detail_fragment"
+        tools:layout="@layout/album_detail_fragment" >
+        <argument
+            android:name="albumId"
+            app:argType="integer" />
+    </fragment>
 
 </navigation>

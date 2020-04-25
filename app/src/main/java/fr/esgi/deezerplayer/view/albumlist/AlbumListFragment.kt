@@ -7,22 +7,26 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.lifecycle.Observer
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 
 import fr.esgi.deezerplayer.R
 import fr.esgi.deezerplayer.data.api.DeezerAPI
+import fr.esgi.deezerplayer.data.model.Album
 import fr.esgi.deezerplayer.data.repositories.AlbumsRepository
 import fr.esgi.deezerplayer.view.albumlist.viewmodel.AlbumListViewModel
 import fr.esgi.deezerplayer.view.albumlist.viewmodel.AlbumListViewModelFactory
 import kotlinx.android.synthetic.main.album_list_fragment.*
 
-class AlbumListFragment : Fragment() {
+class AlbumListFragment : Fragment(), AlbumListRVClickListener {
 
     // Factory = design pattern: delegue creation classe ViewModel par une autre classe
     private lateinit var factory: AlbumListViewModelFactory
     private lateinit var viewModel: AlbumListViewModel // connecte vue au viewModel
+    private var listenerNavigation: ((Album) -> Unit)? = null
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -50,6 +54,9 @@ class AlbumListFragment : Fragment() {
         viewModel = ViewModelProviders.of(this, factory).get(AlbumListViewModel::class.java)
 
 
+        // init listener Navigation
+        listenerNavigation = this::navigateToAlbumDetail
+
         // Recupère les albums (api request)
         viewModel.getAlbums()
 
@@ -65,11 +72,34 @@ class AlbumListFragment : Fragment() {
                     DividerItemDecoration(context, DividerItemDecoration.VERTICAL)
                 )*/
                 it.setHasFixedSize(true)
-                it.adapter = AlbumAdapter(albums)
+                it.adapter = AlbumAdapter(albums, this)
             }
         })
 
     }
+
+    // interface click item recyclerview pour traiter la demande dans la vue et pas dans la logic
+    // ex: naviguer vers autre page, Toast, update view etc
+    override fun onRecyclerViewItemClick(view: View, album: Album) {
+        // faire un when (<=> switch) et comparer les id du param view
+        // si on a associé le click sur plusieurs elem de la vue XML pour exec des actions différentes
+
+        // ici on clique sur tout la vue pour passer a une second page donc pas besoin de faire un when
+        Toast.makeText(requireContext(), "Album: " + album.title, Toast.LENGTH_SHORT).show()
+        listenerNavigation?.invoke(album)
+    }
+
+
+    // Navigation to AlbumDetailFragment with album id in param
+    private fun navigateToAlbumDetail(album: Album) {
+        findNavController().navigate(
+            AlbumListFragmentDirections.actionAlbumListFragmentToAlbumDetailFragment(
+                album.id
+            )
+        )
+    }
+
+
 
     // class de design pour espacer les cellules, on peut la modifier
     private inner class SpaceGrid(private val mSpanCount: Int, private val mSpacing: Int, private val mIncludeEdge: Boolean) : RecyclerView.ItemDecoration() {

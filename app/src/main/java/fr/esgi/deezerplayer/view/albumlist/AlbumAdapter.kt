@@ -1,5 +1,6 @@
 package fr.esgi.deezerplayer.view.albumlist
 
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.ImageView
@@ -14,7 +15,8 @@ import fr.esgi.deezerplayer.databinding.ItemAlbumRecyclerviewBinding
 
 
 class AlbumAdapter(
-    private val albums: List<Album>
+    private val albums: List<Album>,
+    private val listener: AlbumListRVClickListener
 ) : RecyclerView.Adapter<AlbumAdapter.AlbumViewHolder>() {
 
     override fun getItemCount() = albums.size
@@ -42,12 +44,28 @@ class AlbumAdapter(
         // met a jour les valeurs dans xml tout seul
         holder.recyclerViewAlbumBinding.album = albums[position]
 
-        // recup l'album pour afficher l'image car ne sait pas mettre dans BindingUtils
-        // car ne sait pas comment avoir la ref de 2 vue (ImageView + Shimmer)
-        val album = albums[position]
+        // loadImage ici car ne sait pas mettre dans BindingUtils
+        // car ne sait pas comment avoir la ref de 2 vue (ImageView + Shimmer) directement dans le XML
         with(holder) {
-            loadImage(albumCoverImv, album.cover, shimmer)
-            //itemView.setOnClickListener { listener?.invoke(photo) }
+            loadImage(
+                recyclerViewAlbumBinding.albumCover, //recupere view (albumCover = id dans XML)
+                recyclerViewAlbumBinding.album!!.cover,
+                recyclerViewAlbumBinding.parentShimmerLayout // recupere view (parentShimmerLayout = id dans XML)
+            )
+
+            // click listener sur tout l'item
+            /*recyclerViewAlbumBinding.root.setOnClickListener {
+                Log.d("toto", "pos: " + position)
+            }*/
+            // click listener sur un composant du XML spécifique
+            /*recyclerViewAlbumBinding.albumTitle.setOnClickListener {
+                Log.d("toto", "title clicked")
+            }*/
+
+            // Si on veut faire callback vers la vue quand item cliqué pour startActivity par exemple
+            recyclerViewAlbumBinding.root.setOnClickListener {
+                listener.onRecyclerViewItemClick(recyclerViewAlbumBinding.root, albums[position])
+            }
         }
 
     }
@@ -79,9 +97,6 @@ class AlbumAdapter(
         // comme itemView (vue d'un item d'un recyclerview) mais dataBinding <layout> in item_album_recyclerview d'où le nom du type ("ItemAlbumRecyclerviewBinding")
         val recyclerViewAlbumBinding: ItemAlbumRecyclerviewBinding
     ) : RecyclerView.ViewHolder(recyclerViewAlbumBinding.root) {
-        // normalement pas obliger de recup des vues ici car tout peut etre fait avec databinding tout seul
-        // utilisé pour loadImage
-        var albumCoverImv: ImageView = itemView.findViewById(R.id.album_cover)
-        var shimmer: ShimmerFrameLayout = itemView.findViewById(R.id.parentShimmerLayout)
+        // Ne recup pas les view ici avec findviewbyid car sont contenu deja dans recyclerViewAlbumBinding
     }
 }
