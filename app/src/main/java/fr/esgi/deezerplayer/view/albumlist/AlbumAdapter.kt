@@ -12,6 +12,7 @@ import com.squareup.picasso.Picasso
 import fr.esgi.deezerplayer.R
 import fr.esgi.deezerplayer.data.model.Album
 import fr.esgi.deezerplayer.databinding.ItemAlbumRecyclerviewBinding
+import fr.esgi.deezerplayer.util.loadImage
 
 
 class AlbumAdapter(
@@ -68,29 +69,6 @@ class AlbumAdapter(
             }
         }
 
-    }
-
-    private fun loadImage(imageView: ImageView, url: String, shimmer: ShimmerFrameLayout) {
-        shimmer.startShimmerAnimation()
-        Picasso.get()
-            .load(url)
-            .resize(100, 100)
-            .centerInside()
-            .noFade()
-            .placeholder(R.color.grey)
-            .error(R.drawable.ic_launcher_background)  //TODO: changer image error
-            .into(imageView, object : Callback {
-                override fun onSuccess() {
-                    // animation fade-in
-                    imageView.alpha = 0f
-                    shimmer.stopShimmerAnimation()
-                    imageView.animate().setDuration(1000).alpha(1f).start()
-                }
-
-                override fun onError(e: Exception?) {
-                    shimmer.stopShimmerAnimation()
-                }
-            })
     }
 
     class AlbumViewHolder(

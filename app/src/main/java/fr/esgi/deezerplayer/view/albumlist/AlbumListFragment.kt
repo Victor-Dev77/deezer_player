@@ -16,7 +16,7 @@ import androidx.recyclerview.widget.RecyclerView
 import fr.esgi.deezerplayer.R
 import fr.esgi.deezerplayer.data.api.DeezerAPI
 import fr.esgi.deezerplayer.data.model.Album
-import fr.esgi.deezerplayer.data.repositories.AlbumsRepository
+import fr.esgi.deezerplayer.data.repositories.DeezerRepository
 import fr.esgi.deezerplayer.view.albumlist.viewmodel.AlbumListViewModel
 import fr.esgi.deezerplayer.view.albumlist.viewmodel.AlbumListViewModelFactory
 import kotlinx.android.synthetic.main.album_list_fragment.*
@@ -49,7 +49,7 @@ class AlbumListFragment : Fragment(), AlbumListRVClickListener {
         // On creer le viewModel avec la factory class et on créer la factory class avec l'injection class
         // lien: https://openclassrooms.com/fr/courses/4568746-gerez-vos-donnees-localement-pour-avoir-une-application-100-hors-ligne/5106570-architecturez-votre-application-a-laide-dun-viewmodel
         val api = DeezerAPI()
-        val repository = AlbumsRepository(api)
+        val repository = DeezerRepository(api)
         factory = AlbumListViewModelFactory(repository)
         viewModel = ViewModelProviders.of(this, factory).get(AlbumListViewModel::class.java)
 
@@ -94,7 +94,7 @@ class AlbumListFragment : Fragment(), AlbumListRVClickListener {
     private fun navigateToAlbumDetail(album: Album) {
         findNavController().navigate(
             AlbumListFragmentDirections.actionAlbumListFragmentToAlbumDetailFragment(
-                album.id
+                album
             )
         )
     }

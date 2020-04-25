@@ -4,14 +4,14 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import fr.esgi.deezerplayer.data.model.Album
-import fr.esgi.deezerplayer.data.repositories.AlbumsRepository
+import fr.esgi.deezerplayer.data.repositories.DeezerRepository
 import fr.esgi.deezerplayer.util.Coroutines
 import kotlinx.coroutines.Job
 
 // viewModel de l'architecture MVVM
 class AlbumListViewModel(
     // connecté au repository
-    private val repository: AlbumsRepository
+    private val repository: DeezerRepository
 ) : ViewModel() {
 
     // job = reference sur la coroutine

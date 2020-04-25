@@ -13,9 +13,9 @@ data class AlbumDTO(
     @SerializedName("title") val title: String,
     @SerializedName("cover_medium") val cover_medium: String,
     @SerializedName("nb_tracks") val nb_tracks: Int,
-    @SerializedName("release_date") val release_date: String
+    @SerializedName("release_date") val release_date: String,
     // si on veut recup l'artiste, ajouter cette ligne
-   // @SerializedName("artist") val artist: ArtistDTO
+    @SerializedName("artist") val artist: ArtistDTO
 )
 
 // champs contenu dans l'objet "artist" dans le JSON

@@ -22,8 +22,8 @@
         android:label="album_detail_fragment"
         tools:layout="@layout/album_detail_fragment" >
         <argument
-            android:name="albumId"
-            app:argType="integer" />
+            android:name="albumItem"
+            app:argType="fr.esgi.deezerplayer.data.model.Album" />
     </fragment>
 
 </navigation>

@@ -1,28 +1,41 @@
 package fr.esgi.deezerplayer.view.albumdetail
 
-import androidx.lifecycle.ViewModelProviders
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
+import androidx.appcompat.widget.Toolbar
+import androidx.databinding.DataBindingUtil
+import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProviders
 import androidx.navigation.fragment.navArgs
-
 import fr.esgi.deezerplayer.R
+import fr.esgi.deezerplayer.databinding.AlbumDetailFragmentBinding
+import fr.esgi.deezerplayer.util.loadImage
 
 class AlbumDetailFragment : Fragment() {
 
     private lateinit var viewModel: AlbumDetailViewModel
+    private lateinit var binding: AlbumDetailFragmentBinding
 
+    // recupere parametres envoyé dans la navigation
     private val args by navArgs<AlbumDetailFragmentArgs>()
-    private lateinit var titleTv: TextView
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        return inflater.inflate(R.layout.album_detail_fragment, container, false)
+        // inflate avec DataBindingUtil
+        val viewBinding = DataBindingUtil.inflate<AlbumDetailFragmentBinding>(
+            inflater,
+            R.layout.album_detail_fragment,
+            container,
+            false
+        )
+        binding = viewBinding
+        // Set variable dans XML (album) par valeur (albumItem)
+        viewBinding.album = args.albumItem
+        return viewBinding.root
     }
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
@@ -36,9 +49,19 @@ class AlbumDetailFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         with(view) {
-            titleTv = findViewById(R.id.album_titleTV)
+            val toolbar: Toolbar = view.findViewById(R.id.toolbar)
+            toolbar.setNavigationOnClickListener { requireActivity().onBackPressed() }
+
         }
-        titleTv.text = "ID album: " + args.albumId
+
+        loadImage(
+            binding.albumDetailCover,
+            args.albumItem.cover,
+            binding.albumDetailShimmer
+        )
+
     }
+
+
 
 }

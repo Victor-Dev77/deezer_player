@@ -1,14 +1,85 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:context=".view.albumdetail.AlbumDetailFragment">
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <TextView
-        android:id="@+id/album_titleTV"
+    <data>
+        <variable
+            name="album"
+            type="fr.esgi.deezerplayer.data.model.Album" /> <!-- mettre package COMPLET -->
+    </data>
+
+    <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:text="Hello" />
+        tools:context=".view.albumdetail.AlbumDetailFragment">
 
-</FrameLayout>
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <androidx.appcompat.widget.Toolbar
+                android:id="@+id/toolbar"
+                android:layout_width="match_parent"
+                android:layout_height="?attr/actionBarSize"
+                android:background="?attr/colorPrimary"
+                android:theme="@style/ThemeOverlay.AppCompat.ActionBar"
+                app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
+                app:navigationIcon="?attr/homeAsUpIndicator"
+                app:title="@{album.title}"
+                tools:title="Album Title"
+                app:layout_constraintTop_toTopOf="parent"/>
+
+            <com.facebook.shimmer.ShimmerFrameLayout
+                android:id="@+id/album_detail_shimmer"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:layout_constraintTop_toBottomOf="@+id/toolbar"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:duration="25">
+
+                <ImageView
+                    android:id="@+id/album_detail_cover"
+                    android:layout_width="150dp"
+                    android:layout_height="150dp"
+                    android:src="@color/colorAccent"
+                    android:layout_marginTop="50dp"/>
+
+            </com.facebook.shimmer.ShimmerFrameLayout>
+
+            <TextView
+                android:id="@+id/album_detail_title"
+                android:layout_width="250dp"
+                android:layout_height="wrap_content"
+                app:layout_constraintTop_toBottomOf="@+id/album_detail_shimmer"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintLeft_toLeftOf="parent"
+                android:layout_marginTop="20dp"
+                android:text="@{album.title}"
+                tools:text="M.I.L.S 3"
+                android:textAlignment="center"
+                android:textSize="30sp"
+                android:textStyle="bold"
+                android:textColor="@color/black" />
+
+            <TextView
+                android:id="@+id/album_detail_artist_name"
+                android:layout_width="250dp"
+                android:layout_height="wrap_content"
+                app:layout_constraintTop_toBottomOf="@+id/album_detail_title"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintLeft_toLeftOf="parent"
+                android:layout_marginTop="10dp"
+                android:text='@{"ALBUM DE " + album.artist.name.toUpperCase()}'
+                tools:text="ALBUM DE NINHO"
+                android:textAlignment="center"
+                android:textSize="15sp"
+                android:textStyle="bold"
+                />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </FrameLayout>
+
+</layout>

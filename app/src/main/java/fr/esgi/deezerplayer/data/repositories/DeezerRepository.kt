@@ -6,7 +6,7 @@ import fr.esgi.deezerplayer.data.dto.mapper.AlbumsResponseMapper
 
 // Repository (design pattern) permet de faire le pont entre le viewModel et les sources de données
 // ici la source de donnée est l'API avec Retrofit mais on peut aussi avoir la BDD local SQLite
-class AlbumsRepository (
+class DeezerRepository (
     private val api: DeezerAPI
 ) : ListenerAPIRequest() {
 

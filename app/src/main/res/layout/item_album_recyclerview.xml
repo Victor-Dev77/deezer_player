@@ -54,7 +54,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@{album.title}"
-                tools:text="OUHOO"
+                tools:text="Title"
                 android:layout_centerInParent="true"
                 android:textSize="18sp"
                 android:textStyle="bold"
