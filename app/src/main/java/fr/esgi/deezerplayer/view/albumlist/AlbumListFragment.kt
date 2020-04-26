@@ -85,7 +85,7 @@ class AlbumListFragment : Fragment(), AlbumListRVClickListener {
         // si on a associé le click sur plusieurs elem de la vue XML pour exec des actions différentes
 
         // ici on clique sur tout la vue pour passer a une second page donc pas besoin de faire un when
-        Toast.makeText(requireContext(), "Album: " + album.title, Toast.LENGTH_SHORT).show()
+        //Toast.makeText(requireContext(), "Album: " + album.title, Toast.LENGTH_SHORT).show()
         listenerNavigation?.invoke(album)
     }
 

@@ -63,6 +63,10 @@ dependencies {
     implementation 'androidx.cardview:cardview:1.0.0'
     implementation 'com.google.android.material:material:1.2.0-alpha01'
 
+    // SlidingUpPanel for Player UI
+    implementation 'com.sothree.slidinguppanel:library:3.4.0'
+
+    // Loading Image
     implementation "com.squareup.picasso:picasso:2.71828"
     implementation 'com.facebook.shimmer:shimmer:0.1.0@aar'
 
