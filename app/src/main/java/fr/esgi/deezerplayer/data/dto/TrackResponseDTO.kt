@@ -9,5 +9,6 @@ data class TrackDTO(
     @SerializedName("title") val title: String,
     @SerializedName("duration") val duration: Int,
     @SerializedName("track_position") val track_position: Int,
-    @SerializedName("preview") val preview: String
+    @SerializedName("preview") val preview: String,
+    @SerializedName("alternative") val alternative: TrackDTO?
 )
