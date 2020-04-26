@@ -8,7 +8,7 @@ import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.GET
 
 // Service Retrofit contenant tt les req http api (avec @GET, ...)
-interface DeezerAPI {
+interface AlbumAPI {
 
     @GET("albums")
     suspend fun getAlbums(): Response<AlbumResponseDTO>
@@ -21,13 +21,13 @@ interface DeezerAPI {
 
     // Redefinition fonction invoke pour créer instance Retrofit.
     companion object {
-        operator fun invoke(): DeezerAPI {
+        operator fun invoke(): AlbumAPI {
             return Retrofit.Builder()
-                .baseUrl(BuildConfig.DEEZER_API_URL)
+                .baseUrl(BuildConfig.ALBUM_API_URL)
                 //.client(createOkHttpClient())
                 .addConverterFactory(GsonConverterFactory.create())
                 .build()
-                .create(DeezerAPI::class.java)
+                .create(AlbumAPI::class.java)
         }
     }
 

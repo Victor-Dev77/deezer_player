@@ -11,12 +11,15 @@ class AlbumsResponseMapper {
         val albumListDTO = albumsResponse.albumList // = "data" du JSON
 
         return albumListDTO.map { albumDto ->
+            val id: Int = albumDto.alternative?.id ?: albumDto.id
+            val trackList: String = albumDto.alternative?.track_list ?: albumDto.track_list
             Album(
-                albumDto.id, // get champs de AlbumDTO dans AlbumResponseDTO
-                albumDto.title,
+                id,
+                albumDto.title, // get champs de AlbumDTO dans AlbumResponseDTO
                 albumDto.cover_medium,
                 albumDto.nb_tracks,
                 albumDto.release_date,
+                trackList,
                 Artist(
                     albumDto.artist.id,
                     albumDto.artist.name,

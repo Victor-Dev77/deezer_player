@@ -4,11 +4,10 @@ import android.os.Parcelable
 import kotlinx.android.parcel.Parcelize
 
 @Parcelize
-data class Album(
+data class Track(
     val id: Int,
     val title: String,
-    val cover: String,
-    val NBTracks: Int,
-    val releaseDate: String,
-    val trackList: String,
-    val artist: Artist) : Parcelable
+    val duration: Int,
+    val trackPosition: Int,
+    val song: String
+) : Parcelable

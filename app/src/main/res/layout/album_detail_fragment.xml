@@ -30,53 +30,92 @@
                 tools:title="Album Title"
                 app:layout_constraintTop_toTopOf="parent"/>
 
-            <com.facebook.shimmer.ShimmerFrameLayout
-                android:id="@+id/album_detail_shimmer"
-                android:layout_width="wrap_content"
+            <androidx.core.widget.NestedScrollView
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:layout_constraintTop_toBottomOf="@+id/toolbar"
-                app:layout_constraintRight_toRightOf="parent"
-                app:layout_constraintLeft_toLeftOf="parent"
-                app:duration="25">
+                app:layout_constraintTop_toBottomOf="@+id/toolbar">
 
-                <ImageView
-                    android:id="@+id/album_detail_cover"
-                    android:layout_width="150dp"
-                    android:layout_height="150dp"
-                    android:src="@color/colorAccent"
-                    android:layout_marginTop="50dp"/>
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
 
-            </com.facebook.shimmer.ShimmerFrameLayout>
 
-            <TextView
-                android:id="@+id/album_detail_title"
-                android:layout_width="250dp"
-                android:layout_height="wrap_content"
-                app:layout_constraintTop_toBottomOf="@+id/album_detail_shimmer"
-                app:layout_constraintRight_toRightOf="parent"
-                app:layout_constraintLeft_toLeftOf="parent"
-                android:layout_marginTop="20dp"
-                android:text="@{album.title}"
-                tools:text="M.I.L.S 3"
-                android:textAlignment="center"
-                android:textSize="30sp"
-                android:textStyle="bold"
-                android:textColor="@color/black" />
 
-            <TextView
-                android:id="@+id/album_detail_artist_name"
-                android:layout_width="250dp"
-                android:layout_height="wrap_content"
-                app:layout_constraintTop_toBottomOf="@+id/album_detail_title"
-                app:layout_constraintRight_toRightOf="parent"
-                app:layout_constraintLeft_toLeftOf="parent"
-                android:layout_marginTop="10dp"
-                android:text='@{"ALBUM DE " + album.artist.name.toUpperCase()}'
-                tools:text="ALBUM DE NINHO"
-                android:textAlignment="center"
-                android:textSize="15sp"
-                android:textStyle="bold"
-                />
+
+                <com.facebook.shimmer.ShimmerFrameLayout
+                    android:id="@+id/album_detail_shimmer"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:layout_constraintTop_toBottomOf="@+id/toolbar"
+                    app:layout_constraintRight_toRightOf="parent"
+                    app:layout_constraintLeft_toLeftOf="parent"
+                    app:duration="25">
+
+                    <ImageView
+                        android:id="@+id/album_detail_cover"
+                        android:layout_width="150dp"
+                        android:layout_height="150dp"
+                        android:src="@color/colorAccent"
+                        android:layout_marginTop="20dp"/>
+
+                </com.facebook.shimmer.ShimmerFrameLayout>
+
+                <TextView
+                    android:id="@+id/album_detail_title"
+                    android:layout_width="250dp"
+                    android:layout_height="wrap_content"
+                    app:layout_constraintTop_toBottomOf="@+id/album_detail_shimmer"
+                    app:layout_constraintRight_toRightOf="parent"
+                    app:layout_constraintLeft_toLeftOf="parent"
+                    android:layout_marginTop="20dp"
+                    android:text="@{album.title}"
+                    tools:text="M.I.L.S 3"
+                    android:textAlignment="center"
+                    android:textSize="30sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/black" />
+
+                <TextView
+                    android:id="@+id/album_detail_artist_name"
+                    android:layout_width="250dp"
+                    android:layout_height="wrap_content"
+                    app:layout_constraintTop_toBottomOf="@+id/album_detail_title"
+                    app:layout_constraintRight_toRightOf="parent"
+                    app:layout_constraintLeft_toLeftOf="parent"
+                    android:layout_marginTop="10dp"
+                    android:text='@{"ALBUM DE " + album.artist.name.toUpperCase()}'
+                    tools:text="ALBUM DE NINHO"
+                    android:textAlignment="center"
+                    android:textSize="15sp"
+                    android:textStyle="bold"
+                    />
+
+                <TextView
+                    android:id="@+id/album_detail_date"
+                    android:layout_width="250dp"
+                    android:layout_height="wrap_content"
+                    app:layout_constraintTop_toBottomOf="@+id/album_detail_artist_name"
+                    app:layout_constraintRight_toRightOf="parent"
+                    app:layout_constraintLeft_toLeftOf="parent"
+                    android:layout_marginTop="5dp"
+                    android:text='@{album.releaseDate}'
+                    tools:text="7 nov. 2019"
+                    android:textAlignment="center"
+                    android:textStyle="bold"
+                    />
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/tracks_rcv"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:layout_constraintTop_toBottomOf="@+id/album_detail_date"
+                    android:layout_marginTop="20dp"
+                    tools:itemCount="7"
+                    tools:listitem="@layout/item_track_recyclerview" />
+
+                </androidx.constraintlayout.widget.ConstraintLayout>
+
+            </androidx.core.widget.NestedScrollView>
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 

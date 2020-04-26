@@ -1,14 +1,9 @@
 package fr.esgi.deezerplayer.view.albumlist
 
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import android.widget.ImageView
 import androidx.databinding.DataBindingUtil
 import androidx.recyclerview.widget.RecyclerView
-import com.facebook.shimmer.ShimmerFrameLayout
-import com.squareup.picasso.Callback
-import com.squareup.picasso.Picasso
 import fr.esgi.deezerplayer.R
 import fr.esgi.deezerplayer.data.model.Album
 import fr.esgi.deezerplayer.databinding.ItemAlbumRecyclerviewBinding

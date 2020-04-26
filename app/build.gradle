@@ -17,7 +17,8 @@ android {
         versionCode 1
         versionName "1.0"
 
-        buildConfigField "String", "DEEZER_API_URL", '"http://api.deezer.com/2.0/user/2529/"'
+        buildConfigField "String", "ALBUM_API_URL", '"http://api.deezer.com/2.0/user/2529/"'
+        buildConfigField "String", "TRACK_API_URL", '"http://api.deezer.com/2.0/album/"'
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }

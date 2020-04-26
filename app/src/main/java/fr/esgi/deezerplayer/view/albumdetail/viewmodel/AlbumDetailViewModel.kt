@@ -1,32 +1,30 @@
-package fr.esgi.deezerplayer.view.albumlist.viewmodel
+package fr.esgi.deezerplayer.view.albumdetail.viewmodel
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import fr.esgi.deezerplayer.data.model.Album
-import fr.esgi.deezerplayer.data.repositories.AlbumRepository
+import fr.esgi.deezerplayer.data.model.Track
+import fr.esgi.deezerplayer.data.repositories.TrackRepository
 import fr.esgi.deezerplayer.util.Coroutines
 import kotlinx.coroutines.Job
 
-// viewModel de l'architecture MVVM
-class AlbumListViewModel(
-    // connecté au repository
-    private val repository: AlbumRepository
+class AlbumDetailViewModel(
+    private val repository: TrackRepository
 ) : ViewModel() {
 
     // job = reference sur la coroutine
     private lateinit var job: Job
 
     // var private en Mutable qui permet de modifier _albums en interne
-    private val _albums = MutableLiveData<List<Album>>()
+    private val _tracks = MutableLiveData<List<Track>>()
     // rend accessible un getter de _album SEULEMENT en LiveData pour bloquer la modification a l'extérieur de la classe
-    val albums: LiveData<List<Album>> get() = _albums
+    val tracks: LiveData<List<Track>> get() = _tracks
 
     // Peut enlever suspend fun et remplace par coroutine job reference et gérer onCleared
-    fun getAlbums() {
+    fun getTracks(albumID: Int) {
         job = Coroutines.ioThenMain(
-            { repository.getAlbums() },
-            { _albums.value = it } // callback
+            { repository.getTracks(albumID) },
+            { _tracks.value = it } // callback
         )
     }
 
@@ -35,5 +33,4 @@ class AlbumListViewModel(
         super.onCleared()
         if(::job.isInitialized) job.cancel()
     }
-
 }
