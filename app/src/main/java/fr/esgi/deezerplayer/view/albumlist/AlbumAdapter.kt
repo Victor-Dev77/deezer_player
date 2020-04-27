@@ -8,11 +8,12 @@ import fr.esgi.deezerplayer.R
 import fr.esgi.deezerplayer.data.model.Album
 import fr.esgi.deezerplayer.databinding.ItemAlbumRecyclerviewBinding
 import fr.esgi.deezerplayer.util.loadImage
+import fr.esgi.deezerplayer.view.RVClickListener
 
 
 class AlbumAdapter(
     private val albums: List<Album>,
-    private val listener: AlbumListRVClickListener
+    private val listener: RVClickListener
 ) : RecyclerView.Adapter<AlbumAdapter.AlbumViewHolder>() {
 
     override fun getItemCount() = albums.size
@@ -36,13 +37,13 @@ class AlbumAdapter(
 
 
     override fun onBindViewHolder(holder: AlbumViewHolder, position: Int) {
-        // .album se trouve dans <variable> dans xml
-        // met a jour les valeurs dans xml tout seul
-        holder.recyclerViewAlbumBinding.album = albums[position]
-
-        // loadImage ici car ne sait pas mettre dans BindingUtils
-        // car ne sait pas comment avoir la ref de 2 vue (ImageView + Shimmer) directement dans le XML
         with(holder) {
+            // .album se trouve dans <variable> dans xml
+            // met a jour les valeurs dans xml tout seul
+            recyclerViewAlbumBinding.album = albums[position]
+
+            // loadImage ici car ne sait pas mettre dans BindingUtils
+            // car ne sait pas comment avoir la ref de 2 vue (ImageView + Shimmer) directement dans le XML
             loadImage(
                 recyclerViewAlbumBinding.albumCover, //recupere view (albumCover = id dans XML)
                 recyclerViewAlbumBinding.album!!.cover,

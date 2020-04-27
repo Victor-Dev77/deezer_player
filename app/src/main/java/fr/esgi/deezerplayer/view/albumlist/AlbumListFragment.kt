@@ -7,7 +7,6 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
@@ -17,11 +16,12 @@ import fr.esgi.deezerplayer.R
 import fr.esgi.deezerplayer.data.api.AlbumAPI
 import fr.esgi.deezerplayer.data.model.Album
 import fr.esgi.deezerplayer.data.repositories.AlbumRepository
+import fr.esgi.deezerplayer.view.RVClickListener
 import fr.esgi.deezerplayer.view.albumlist.viewmodel.AlbumListViewModel
 import fr.esgi.deezerplayer.view.albumlist.viewmodel.AlbumListViewModelFactory
 import kotlinx.android.synthetic.main.album_list_fragment.*
 
-class AlbumListFragment : Fragment(), AlbumListRVClickListener {
+class AlbumListFragment : Fragment(), RVClickListener {
 
     // Factory = design pattern: delegue creation classe ViewModel par une autre classe
     private lateinit var factory: AlbumListViewModelFactory
@@ -80,15 +80,14 @@ class AlbumListFragment : Fragment(), AlbumListRVClickListener {
 
     // interface click item recyclerview pour traiter la demande dans la vue et pas dans la logic
     // ex: naviguer vers autre page, Toast, update view etc
-    override fun onRecyclerViewItemClick(view: View, album: Album) {
+    override fun <Album> onRecyclerViewItemClick(view: View, data: Album) {
         // faire un when (<=> switch) et comparer les id du param view
         // si on a associé le click sur plusieurs elem de la vue XML pour exec des actions différentes
 
         // ici on clique sur tout la vue pour passer a une second page donc pas besoin de faire un when
         //Toast.makeText(requireContext(), "Album: " + album.title, Toast.LENGTH_SHORT).show()
-        listenerNavigation?.invoke(album)
+        listenerNavigation?.invoke(data as fr.esgi.deezerplayer.data.model.Album)
     }
-
 
     // Navigation to AlbumDetailFragment with album id in param
     private fun navigateToAlbumDetail(album: Album) {
@@ -122,6 +121,5 @@ class AlbumListFragment : Fragment(), AlbumListRVClickListener {
             }
         }
     }
-
 }
 

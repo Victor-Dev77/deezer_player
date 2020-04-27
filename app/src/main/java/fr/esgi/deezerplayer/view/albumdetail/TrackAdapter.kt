@@ -7,9 +7,11 @@ import androidx.recyclerview.widget.RecyclerView
 import fr.esgi.deezerplayer.R
 import fr.esgi.deezerplayer.data.model.Track
 import fr.esgi.deezerplayer.databinding.ItemTrackRecyclerviewBinding
+import fr.esgi.deezerplayer.view.RVClickListener
 
 class TrackAdapter (
-    private val tracks: List<Track>
+    private val tracks: List<Track>,
+    private val listener: RVClickListener
 ) : RecyclerView.Adapter<TrackAdapter.TrackViewHolder>() {
 
     override fun getItemCount() = tracks.size
@@ -25,7 +27,13 @@ class TrackAdapter (
     }
 
     override fun onBindViewHolder(holder: TrackViewHolder, position: Int) {
-        holder.recyclerViewTrackBinding.track = tracks[position]
+        with(holder) {
+            recyclerViewTrackBinding.track = tracks[position]
+
+            recyclerViewTrackBinding.root.setOnClickListener {
+                listener.onRecyclerViewItemClick(recyclerViewTrackBinding.root, tracks[position])
+            }
+        }
     }
 
     class TrackViewHolder (

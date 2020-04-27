@@ -7,6 +7,10 @@
         <variable
             name="album"
             type="fr.esgi.deezerplayer.data.model.Album" /> <!-- mettre package COMPLET -->
+
+        <variable
+            name="track"
+            type="fr.esgi.deezerplayer.data.model.Track" />
     </data>
 
     <com.sothree.slidinguppanel.SlidingUpPanelLayout
@@ -140,7 +144,8 @@
         <!-- SLIDING LAYOUT -->
         <include xmlns:bind="http://schemas.android.com/apk/res-auto"
             layout="@layout/sliding_player_content"
-            bind:album="@{album}"/>
+            bind:album="@{album}"
+            bind:track="@{track}"/>
 
 
     </com.sothree.slidinguppanel.SlidingUpPanelLayout>
