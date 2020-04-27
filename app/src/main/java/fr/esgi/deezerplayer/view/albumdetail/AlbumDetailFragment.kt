@@ -1,10 +1,14 @@
 package fr.esgi.deezerplayer.view.albumdetail
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageButton
+import android.widget.ImageView
 import android.widget.LinearLayout
+import android.widget.Toast
 import androidx.appcompat.widget.Toolbar
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
@@ -17,6 +21,9 @@ import com.sothree.slidinguppanel.SlidingUpPanelLayout
 import fr.esgi.deezerplayer.R
 import fr.esgi.deezerplayer.data.api.TrackAPI
 import fr.esgi.deezerplayer.data.model.Track
+import fr.esgi.deezerplayer.data.model.musicplayer.Player
+import fr.esgi.deezerplayer.data.model.musicplayer.PlayerState
+import fr.esgi.deezerplayer.data.model.musicplayer.PlayerStateListener
 import fr.esgi.deezerplayer.data.repositories.TrackRepository
 import fr.esgi.deezerplayer.databinding.AlbumDetailFragmentBinding
 import fr.esgi.deezerplayer.util.loadImage
@@ -25,7 +32,7 @@ import fr.esgi.deezerplayer.view.albumdetail.viewmodel.AlbumDetailViewModel
 import fr.esgi.deezerplayer.view.albumdetail.viewmodel.AlbumDetailViewModelFactory
 import kotlinx.android.synthetic.main.album_detail_fragment.*
 
-class AlbumDetailFragment : Fragment(), RVClickListener, SlidingUpPanelLayout.PanelSlideListener {
+class AlbumDetailFragment : Fragment(), PlayerStateListener, RVClickListener, SlidingUpPanelLayout.PanelSlideListener {
 
     private lateinit var factory: AlbumDetailViewModelFactory
     private lateinit var viewModel: AlbumDetailViewModel
@@ -34,8 +41,13 @@ class AlbumDetailFragment : Fragment(), RVClickListener, SlidingUpPanelLayout.Pa
     // recupere parametres envoyé dans la navigation
     private val args by navArgs<AlbumDetailFragmentArgs>()
 
+    private val playerAdapter = Player.apply { setPlayerStateListener(this@AlbumDetailFragment) }
     private lateinit var playerPanel: SlidingUpPanelLayout
     private lateinit var playerBar: LinearLayout
+    private lateinit var playBtnBar: ImageButton
+    private lateinit var pauseBtnBar: ImageButton
+    private lateinit var playBtnPlayer: ImageButton
+    private lateinit var pauseBtnPlayer: ImageButton
 
 
     override fun onCreateView(
@@ -94,10 +106,20 @@ class AlbumDetailFragment : Fragment(), RVClickListener, SlidingUpPanelLayout.Pa
             val toolbar: Toolbar = findViewById(R.id.toolbar)
             toolbar.setNavigationOnClickListener { requireActivity().onBackPressed() }
 
+            playBtnBar = findViewById(R.id.player_btn_play)
+            playBtnPlayer = findViewById(R.id.player_content_btn_play)
+            pauseBtnBar = findViewById(R.id.player_btn_pause)
+            pauseBtnPlayer = findViewById(R.id.player_content_btn_pause)
             playerBar = findViewById(R.id.player_bar)
             playerPanel = findViewById(R.id.player_sliding)
             playerPanel.panelState = SlidingUpPanelLayout.PanelState.HIDDEN // caché player bar
             playerPanel.addPanelSlideListener(this@AlbumDetailFragment)
+
+            // Click Listener
+            playBtnBar.setOnClickListener { playerAdapter.play() }
+            playBtnPlayer.setOnClickListener { playerAdapter.play() }
+            pauseBtnBar.setOnClickListener { playerAdapter.pause() }
+            pauseBtnPlayer.setOnClickListener { playerAdapter.pause() }
         }
 
         loadImage(
@@ -108,13 +130,28 @@ class AlbumDetailFragment : Fragment(), RVClickListener, SlidingUpPanelLayout.Pa
 
     }
 
+    override fun onTrackFinished() {
+        Toast.makeText(requireContext(), "track finish", Toast.LENGTH_SHORT).show()
+        updateUIPlayingTrack(false)
+        //TODO: passer a track suivante
+    }
+
+    override fun onStateChanged(state: PlayerState) {
+        when (state) {
+            PlayerState.PLAYING -> updateUIPlayingTrack(true)
+            PlayerState.PAUSED -> updateUIPlayingTrack(false)
+            else -> Log.d("toto", state.name)
+        }
+    }
+
     override fun <Track> onRecyclerViewItemClick(view: View, data: Track) {
         val track = data as fr.esgi.deezerplayer.data.model.Track
         binding.track = track
         // rootview car param view est def dans TrackAdapter et est view du recyclerview
         // donc peut pas acceder aux vues de la cover, title, etc
-        val viewRoot = player_sliding.rootView
+        val viewRoot = playerPanel.rootView
         updatePlayerUI(viewRoot, track)
+        playerAdapter.loadTrack(track.song)
     }
 
     private fun updatePlayerUI(view: View, track: Track) {
@@ -124,6 +161,15 @@ class AlbumDetailFragment : Fragment(), RVClickListener, SlidingUpPanelLayout.Pa
             args.albumItem.cover,
             view.findViewById(R.id.player_content_shimmer)
         )
+    }
+
+    private fun updateUIPlayingTrack(isPlaying: Boolean) {
+        // Hide Play Btn
+        playBtnBar.visibility = if (isPlaying) View.GONE else View.VISIBLE
+        playBtnPlayer.visibility = if (isPlaying) View.GONE else View.VISIBLE
+        // Show Pause Btn
+        pauseBtnBar.visibility = if (isPlaying) View.VISIBLE else View.GONE
+        pauseBtnPlayer.visibility = if (isPlaying) View.VISIBLE else View.GONE
     }
 
     override fun onPanelSlide(panel: View?, slideOffset: Float) {
@@ -142,6 +188,16 @@ class AlbumDetailFragment : Fragment(), RVClickListener, SlidingUpPanelLayout.Pa
         }
         else if (newState == SlidingUpPanelLayout.PanelState.COLLAPSED) {
             playerBar.visibility = View.VISIBLE
+        }
+    }
+
+    override fun onStop() {
+        super.onStop()
+        if (requireActivity().isChangingConfigurations && playerAdapter.isPlaying()) {
+            Log.d("toto", "onStop: don't release MediaPlayer as screen is rotating & playing")
+        } else {
+            playerAdapter.release()
+            Log.d("toto", "onStop: release MediaPlayer")
         }
     }
 
