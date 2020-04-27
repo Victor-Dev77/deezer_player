@@ -1,12 +1,10 @@
 package fr.esgi.deezerplayer.view.albumdetail
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
-import android.widget.Toast
 import androidx.appcompat.widget.Toolbar
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
@@ -27,7 +25,7 @@ import fr.esgi.deezerplayer.view.albumdetail.viewmodel.AlbumDetailViewModel
 import fr.esgi.deezerplayer.view.albumdetail.viewmodel.AlbumDetailViewModelFactory
 import kotlinx.android.synthetic.main.album_detail_fragment.*
 
-class AlbumDetailFragment : Fragment(), RVClickListener {
+class AlbumDetailFragment : Fragment(), RVClickListener, SlidingUpPanelLayout.PanelSlideListener {
 
     private lateinit var factory: AlbumDetailViewModelFactory
     private lateinit var viewModel: AlbumDetailViewModel
@@ -36,7 +34,9 @@ class AlbumDetailFragment : Fragment(), RVClickListener {
     // recupere parametres envoyé dans la navigation
     private val args by navArgs<AlbumDetailFragmentArgs>()
 
-    private lateinit var playerBar: SlidingUpPanelLayout
+    private lateinit var playerPanel: SlidingUpPanelLayout
+    private lateinit var playerBar: LinearLayout
+
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -94,8 +94,10 @@ class AlbumDetailFragment : Fragment(), RVClickListener {
             val toolbar: Toolbar = findViewById(R.id.toolbar)
             toolbar.setNavigationOnClickListener { requireActivity().onBackPressed() }
 
-            playerBar = findViewById(R.id.player_sliding)
-            playerBar.panelState = SlidingUpPanelLayout.PanelState.HIDDEN
+            playerBar = findViewById(R.id.player_bar)
+            playerPanel = findViewById(R.id.player_sliding)
+            playerPanel.panelState = SlidingUpPanelLayout.PanelState.HIDDEN // caché player bar
+            playerPanel.addPanelSlideListener(this@AlbumDetailFragment)
         }
 
         loadImage(
@@ -109,17 +111,38 @@ class AlbumDetailFragment : Fragment(), RVClickListener {
     override fun <Track> onRecyclerViewItemClick(view: View, data: Track) {
         val track = data as fr.esgi.deezerplayer.data.model.Track
         binding.track = track
+        // rootview car param view est def dans TrackAdapter et est view du recyclerview
+        // donc peut pas acceder aux vues de la cover, title, etc
         val viewRoot = player_sliding.rootView
         updatePlayerUI(viewRoot, track)
     }
 
     private fun updatePlayerUI(view: View, track: Track) {
-        playerBar.panelState = SlidingUpPanelLayout.PanelState.COLLAPSED
+        playerPanel.panelState = SlidingUpPanelLayout.PanelState.COLLAPSED // affiché player bar
         loadImage(
             view.findViewById(R.id.player_content_cover),
             args.albumItem.cover,
             view.findViewById(R.id.player_content_shimmer)
         )
+    }
+
+    override fun onPanelSlide(panel: View?, slideOffset: Float) {
+        //Log.d("toto", "offset: " + slideOffset)
+        // TODO: ici - utiliser CollapsedToolBar OU en fonction val offset set visibility player bar avec anim fadeIn
+    }
+
+    override fun onPanelStateChanged(
+        panel: View?,
+        previousState: SlidingUpPanelLayout.PanelState?,
+        newState: SlidingUpPanelLayout.PanelState?
+    ) {
+        // LE FAIRE DANS OnPanelSlide pour faire effet anim car la trop brusque
+        if (newState == SlidingUpPanelLayout.PanelState.EXPANDED) {
+            playerBar.visibility = View.GONE
+        }
+        else if (newState == SlidingUpPanelLayout.PanelState.COLLAPSED) {
+            playerBar.visibility = View.VISIBLE
+        }
     }
 
 }
