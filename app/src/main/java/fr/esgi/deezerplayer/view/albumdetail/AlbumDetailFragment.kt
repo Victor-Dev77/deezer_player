@@ -2,17 +2,20 @@ package fr.esgi.deezerplayer.view.albumdetail
 
 import android.os.Bundle
 import android.util.Log
+import android.view.KeyEvent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
 import android.widget.SeekBar.OnSeekBarChangeListener
+import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.widget.AppCompatSeekBar
 import androidx.appcompat.widget.Toolbar
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
+import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -135,6 +138,17 @@ class AlbumDetailFragment : Fragment(), PlayerStateListener, RVClickListener, Sl
             findViewById<ImageButton>(R.id.player_btn_rewind).setOnClickListener { viewModel.previousTrack() }
             findViewById<ImageButton>(R.id.player_content_btn_rewind).setOnClickListener { viewModel.previousTrack() }
         }
+
+        // gere back button -> si player ouvert plein ecran -> le reduit au lieu de retour arriere
+        activity?.onBackPressedDispatcher?.addCallback(viewLifecycleOwner, object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                if (playerPanel.panelState == SlidingUpPanelLayout.PanelState.EXPANDED) {
+                    // reduit UI Player
+                    playerPanel.panelState = SlidingUpPanelLayout.PanelState.COLLAPSED
+                } else
+                    findNavController().popBackStack()
+            }
+        })
 
         initializeSeekBar()
 
