@@ -125,6 +125,10 @@ class AlbumDetailFragment : Fragment(), PlayerStateListener, RVClickListener, Sl
             playBtnPlayer.setOnClickListener { viewModel.playerAdapter.play() }
             pauseBtnBar.setOnClickListener { viewModel.playerAdapter.pause() }
             pauseBtnPlayer.setOnClickListener { viewModel.playerAdapter.pause() }
+            findViewById<ImageButton>(R.id.player_btn_forward).setOnClickListener { viewModel.nextTrack() }
+            findViewById<ImageButton>(R.id.player_content_btn_forward).setOnClickListener { viewModel.nextTrack() }
+            findViewById<ImageButton>(R.id.player_btn_rewind).setOnClickListener { viewModel.previousTrack() }
+            findViewById<ImageButton>(R.id.player_content_btn_rewind).setOnClickListener { viewModel.previousTrack() }
         }
 
         loadImage(

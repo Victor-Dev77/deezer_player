@@ -52,9 +52,23 @@ class AlbumDetailViewModel(
             if (currentTrack.value!!.trackPosition < _tracks.value!!.size) {
                 // Next track
                 _currentTrack.value = _tracks.value!![currentTrack.value!!.trackPosition]
+            }
+            else {
+                // load first track
+                _currentTrack.value = _tracks.value!![0]
+            }
+            playerAdapter.loadTrack(_currentTrack.value!!.song)
+        }
+    }
+
+    fun previousTrack() {
+        if (_tracks.value != null && currentTrack.value != null) {
+            if (currentTrack.value!!.trackPosition != 1) {
+                // si c pas la 1ere track on peut previous
+                // -2 car trackPosition commence a 1 et pas 0
+                _currentTrack.value = _tracks.value!![currentTrack.value!!.trackPosition - 2]
                 playerAdapter.loadTrack(_currentTrack.value!!.song)
             }
         }
-
     }
 }
