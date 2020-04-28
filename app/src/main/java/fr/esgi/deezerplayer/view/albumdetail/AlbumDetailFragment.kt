@@ -41,7 +41,6 @@ class AlbumDetailFragment : Fragment(), PlayerStateListener, RVClickListener, Sl
     // recupere parametres envoyé dans la navigation
     private val args by navArgs<AlbumDetailFragmentArgs>()
 
-    private val playerAdapter = Player.apply { setPlayerStateListener(this@AlbumDetailFragment) }
     private lateinit var playerPanel: SlidingUpPanelLayout
     private lateinit var playerBar: LinearLayout
     private lateinit var playBtnBar: ImageButton
@@ -96,6 +95,12 @@ class AlbumDetailFragment : Fragment(), PlayerStateListener, RVClickListener, Sl
                 it.adapter = TrackAdapter(tracks, this)
             }
         })
+
+        viewModel.playerAdapter.setPlayerStateListener(this@AlbumDetailFragment)
+
+        viewModel.currentTrack.observe(viewLifecycleOwner, Observer { track ->
+            binding.track = track
+        })
     }
 
 
@@ -116,10 +121,10 @@ class AlbumDetailFragment : Fragment(), PlayerStateListener, RVClickListener, Sl
             playerPanel.addPanelSlideListener(this@AlbumDetailFragment)
 
             // Click Listener
-            playBtnBar.setOnClickListener { playerAdapter.play() }
-            playBtnPlayer.setOnClickListener { playerAdapter.play() }
-            pauseBtnBar.setOnClickListener { playerAdapter.pause() }
-            pauseBtnPlayer.setOnClickListener { playerAdapter.pause() }
+            playBtnBar.setOnClickListener { viewModel.playerAdapter.play() }
+            playBtnPlayer.setOnClickListener { viewModel.playerAdapter.play() }
+            pauseBtnBar.setOnClickListener { viewModel.playerAdapter.pause() }
+            pauseBtnPlayer.setOnClickListener { viewModel.playerAdapter.pause() }
         }
 
         loadImage(
@@ -133,7 +138,8 @@ class AlbumDetailFragment : Fragment(), PlayerStateListener, RVClickListener, Sl
     override fun onTrackFinished() {
         Toast.makeText(requireContext(), "track finish", Toast.LENGTH_SHORT).show()
         updateUIPlayingTrack(false)
-        //TODO: passer a track suivante
+        //passer a track suivante
+        viewModel.nextTrack()
     }
 
     override fun onStateChanged(state: PlayerState) {
@@ -147,11 +153,13 @@ class AlbumDetailFragment : Fragment(), PlayerStateListener, RVClickListener, Sl
     override fun <Track> onRecyclerViewItemClick(view: View, data: Track) {
         val track = data as fr.esgi.deezerplayer.data.model.Track
         binding.track = track
+        viewModel.setCurrentTrack(track)
         // rootview car param view est def dans TrackAdapter et est view du recyclerview
         // donc peut pas acceder aux vues de la cover, title, etc
         val viewRoot = playerPanel.rootView
         updatePlayerUI(viewRoot, track)
-        playerAdapter.loadTrack(track.song)
+        updateUIPlayingTrack(false)
+        viewModel.playerAdapter.loadTrack(track.song)
     }
 
     private fun updatePlayerUI(view: View, track: Track) {
@@ -193,10 +201,10 @@ class AlbumDetailFragment : Fragment(), PlayerStateListener, RVClickListener, Sl
 
     override fun onStop() {
         super.onStop()
-        if (requireActivity().isChangingConfigurations && playerAdapter.isPlaying()) {
+        if (requireActivity().isChangingConfigurations && viewModel.playerAdapter.isPlaying()) {
             Log.d("toto", "onStop: don't release MediaPlayer as screen is rotating & playing")
         } else {
-            playerAdapter.release()
+            viewModel.playerAdapter.release()
             Log.d("toto", "onStop: release MediaPlayer")
         }
     }

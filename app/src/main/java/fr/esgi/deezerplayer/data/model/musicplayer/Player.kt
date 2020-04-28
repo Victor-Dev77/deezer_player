@@ -8,24 +8,15 @@ import android.util.Log
 object Player : PlayerAdapter, MediaPlayer.OnPreparedListener, MediaPlayer.OnCompletionListener,
     MediaPlayer.OnErrorListener {
 
-    private val player = MediaPlayer().apply {
-        setAudioAttributes(
-            AudioAttributes
-                .Builder()
-                .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
-                .build()
-        )
-        // this ref _player car dans apply -> @Player pour def this = objet et pas _player
-        setOnErrorListener(this@Player)
-        setOnPreparedListener(this@Player)
-        setOnCompletionListener(this@Player)
-    }
+    private var player = initMediaPlayer()
 
     private var stateListener: PlayerStateListener? = null
 
     fun setPlayerStateListener(listener: PlayerStateListener) {
         stateListener = listener
     }
+
+    private lateinit var currentState: PlayerState
 
 
     /*
@@ -35,12 +26,14 @@ object Player : PlayerAdapter, MediaPlayer.OnPreparedListener, MediaPlayer.OnCom
         Log.d("toto", "MediaPlayer prepared")
         //TODO: click track afficher loader. une fois ici envoyer callback pour enlever loader et lancer play dans la vue
         player.start()
+        currentState = PlayerState.PLAYING
         stateListener?.onStateChanged(PlayerState.PLAYING)
     }
 
     override fun onCompletion(mp: MediaPlayer?) {
         Log.d("toto", "MediaPlayer completed")
-        player.reset()
+        seekTo(0)
+        currentState = PlayerState.FINISH
         stateListener?.onStateChanged(PlayerState.FINISH)
         stateListener?.onTrackFinished()
     }
@@ -51,6 +44,7 @@ object Player : PlayerAdapter, MediaPlayer.OnPreparedListener, MediaPlayer.OnCom
             mp.reset()
         else if (what == MediaPlayer.MEDIA_ERROR_UNKNOWN)
             mp.reset()
+        currentState = PlayerState.RESET
         return true
     }
 
@@ -59,6 +53,20 @@ object Player : PlayerAdapter, MediaPlayer.OnPreparedListener, MediaPlayer.OnCom
     /*
         ####    CONTROLS    ######
      */
+    private fun initMediaPlayer() = MediaPlayer().apply {
+        setAudioAttributes(
+            AudioAttributes
+                .Builder()
+                .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
+                .build()
+        )
+        // this ref _player car dans apply -> @Player pour def this = objet et pas _player
+        setOnErrorListener(this@Player)
+        setOnPreparedListener(this@Player)
+        setOnCompletionListener(this@Player)
+        currentState = PlayerState.INIT
+    }
+
     override fun loadTrack(url: String) {
         /* try {
              player.setDataSource(url)
@@ -71,9 +79,10 @@ object Player : PlayerAdapter, MediaPlayer.OnPreparedListener, MediaPlayer.OnCom
          } catch (e: Exception) {
              Log.d("toto", "ERROR Load: prepareAsync -> " + e.stackTrace)
          }*/
-        if (player.isPlaying) {
-            player.reset()
+        if (currentState == PlayerState.RELEASED) {
+            player = initMediaPlayer()
         }
+        player.reset()
         player.setDataSource(url)
         player.prepareAsync()
     }
@@ -81,6 +90,7 @@ object Player : PlayerAdapter, MediaPlayer.OnPreparedListener, MediaPlayer.OnCom
     override fun play() {
         if (!player.isPlaying) {
             player.start()
+            currentState = PlayerState.PLAYING
             stateListener?.onStateChanged(PlayerState.PLAYING)
         }
     }
@@ -88,6 +98,7 @@ object Player : PlayerAdapter, MediaPlayer.OnPreparedListener, MediaPlayer.OnCom
     override fun pause() {
         if (player.isPlaying) {
             player.pause()
+            currentState = PlayerState.PAUSED
             stateListener?.onStateChanged(PlayerState.PAUSED)
         }
     }
@@ -96,11 +107,13 @@ object Player : PlayerAdapter, MediaPlayer.OnPreparedListener, MediaPlayer.OnCom
 
     override fun reset() {
         player.reset()
+        currentState = PlayerState.RESET
         stateListener?.onStateChanged(PlayerState.RESET)
     }
 
     override fun release() {
         player.release()
+        currentState = PlayerState.RELEASED
     }
 
     override fun seekTo(position: Int) {

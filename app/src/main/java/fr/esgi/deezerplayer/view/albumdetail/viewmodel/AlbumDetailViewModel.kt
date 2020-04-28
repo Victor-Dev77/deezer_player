@@ -4,6 +4,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import fr.esgi.deezerplayer.data.model.Track
+import fr.esgi.deezerplayer.data.model.musicplayer.Player
 import fr.esgi.deezerplayer.data.repositories.TrackRepository
 import fr.esgi.deezerplayer.util.Coroutines
 import kotlinx.coroutines.Job
@@ -20,17 +21,40 @@ class AlbumDetailViewModel(
     // rend accessible un getter de _album SEULEMENT en LiveData pour bloquer la modification a l'extérieur de la classe
     val tracks: LiveData<List<Track>> get() = _tracks
 
+    private val _playerAdapter = Player
+    val playerAdapter get() = _playerAdapter
+    private val _currentTrack = MutableLiveData<Track?>()
+    val currentTrack: LiveData<Track?> get() = _currentTrack
+
     // Peut enlever suspend fun et remplace par coroutine job reference et gérer onCleared
     fun getTracks(albumID: Int) {
         job = Coroutines.ioThenMain(
             { repository.getTracks(albumID) },
-            { _tracks.value = it } // callback
+            {
+                _tracks.value = it
+                _currentTrack.value = _tracks.value!![0]
+            } // callback
         )
     }
 
     // annule coroutine si la view est détruite
     override fun onCleared() {
         super.onCleared()
-        if(::job.isInitialized) job.cancel()
+        if (::job.isInitialized) job.cancel()
+    }
+
+    fun setCurrentTrack(track: Track) {
+        _currentTrack.value = track
+    }
+
+    fun nextTrack() {
+        if (_tracks.value != null && currentTrack.value != null) {
+            if (currentTrack.value!!.trackPosition < _tracks.value!!.size) {
+                // Next track
+                _currentTrack.value = _tracks.value!![currentTrack.value!!.trackPosition]
+                playerAdapter.loadTrack(_currentTrack.value!!.song)
+            }
+        }
+
     }
 }

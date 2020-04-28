@@ -1,11 +1,12 @@
 package fr.esgi.deezerplayer.data.model.musicplayer
 
 enum class PlayerState {
-    INVALID,
+    INIT,
     PLAYING,
     PAUSED,
     RESET,
-    FINISH
+    FINISH,
+    RELEASED
 }
 
 interface PlayerStateListener {
