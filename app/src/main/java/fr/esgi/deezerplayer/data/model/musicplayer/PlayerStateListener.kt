@@ -11,7 +11,11 @@ enum class PlayerState {
 
 interface PlayerStateListener {
 
-    fun onStateChanged(state: PlayerState) {}
+    fun onStateChanged(state: PlayerState)
 
-    fun onTrackFinished() {}
+    fun onTrackFinished()
+
+    fun onDurationChanged(duration: Int)
+
+    fun onPositionChanged(position: Int)
 }

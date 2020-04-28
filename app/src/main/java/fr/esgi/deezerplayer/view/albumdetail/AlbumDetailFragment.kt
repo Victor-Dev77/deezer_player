@@ -5,10 +5,9 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageButton
-import android.widget.ImageView
-import android.widget.LinearLayout
-import android.widget.Toast
+import android.widget.*
+import android.widget.SeekBar.OnSeekBarChangeListener
+import androidx.appcompat.widget.AppCompatSeekBar
 import androidx.appcompat.widget.Toolbar
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
@@ -21,7 +20,6 @@ import com.sothree.slidinguppanel.SlidingUpPanelLayout
 import fr.esgi.deezerplayer.R
 import fr.esgi.deezerplayer.data.api.TrackAPI
 import fr.esgi.deezerplayer.data.model.Track
-import fr.esgi.deezerplayer.data.model.musicplayer.Player
 import fr.esgi.deezerplayer.data.model.musicplayer.PlayerState
 import fr.esgi.deezerplayer.data.model.musicplayer.PlayerStateListener
 import fr.esgi.deezerplayer.data.repositories.TrackRepository
@@ -31,6 +29,9 @@ import fr.esgi.deezerplayer.view.RVClickListener
 import fr.esgi.deezerplayer.view.albumdetail.viewmodel.AlbumDetailViewModel
 import fr.esgi.deezerplayer.view.albumdetail.viewmodel.AlbumDetailViewModelFactory
 import kotlinx.android.synthetic.main.album_detail_fragment.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 class AlbumDetailFragment : Fragment(), PlayerStateListener, RVClickListener, SlidingUpPanelLayout.PanelSlideListener {
 
@@ -47,7 +48,9 @@ class AlbumDetailFragment : Fragment(), PlayerStateListener, RVClickListener, Sl
     private lateinit var pauseBtnBar: ImageButton
     private lateinit var playBtnPlayer: ImageButton
     private lateinit var pauseBtnPlayer: ImageButton
-
+    private lateinit var seekBarAudio: AppCompatSeekBar
+    private lateinit var currentPositionPlay: TextView
+    private var mUserIsSeeking = false
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -111,6 +114,8 @@ class AlbumDetailFragment : Fragment(), PlayerStateListener, RVClickListener, Sl
             val toolbar: Toolbar = findViewById(R.id.toolbar)
             toolbar.setNavigationOnClickListener { requireActivity().onBackPressed() }
 
+            seekBarAudio = findViewById(R.id.player_content_seekbar)
+            currentPositionPlay = findViewById(R.id.player_content_current_position)
             playBtnBar = findViewById(R.id.player_btn_play)
             playBtnPlayer = findViewById(R.id.player_content_btn_play)
             pauseBtnBar = findViewById(R.id.player_btn_pause)
@@ -131,6 +136,8 @@ class AlbumDetailFragment : Fragment(), PlayerStateListener, RVClickListener, Sl
             findViewById<ImageButton>(R.id.player_content_btn_rewind).setOnClickListener { viewModel.previousTrack() }
         }
 
+        initializeSeekBar()
+
         loadImage(
             binding.albumDetailCover,
             args.albumItem.cover,
@@ -139,12 +146,52 @@ class AlbumDetailFragment : Fragment(), PlayerStateListener, RVClickListener, Sl
 
     }
 
+    private fun initializeSeekBar() {
+        seekBarAudio.setOnSeekBarChangeListener(
+            object : OnSeekBarChangeListener {
+                var userSelectedPosition = 0
+                override fun onStartTrackingTouch(seekBar: SeekBar) {
+                    mUserIsSeeking = true
+                }
+
+                override fun onProgressChanged(
+                    seekBar: SeekBar,
+                    progress: Int,
+                    fromUser: Boolean
+                ) {
+                    if (fromUser) {
+                        userSelectedPosition = progress
+                        currentPositionPlay.text = progress.toString()
+                    }
+                }
+
+                override fun onStopTrackingTouch(seekBar: SeekBar) {
+                    mUserIsSeeking = false
+                    viewModel.playerAdapter.seekTo(userSelectedPosition)
+                }
+            })
+    }
+
     override fun onTrackFinished() {
         Toast.makeText(requireContext(), "track finish", Toast.LENGTH_SHORT).show()
         updateUIPlayingTrack(false)
         //passer a track suivante
         viewModel.nextTrack()
     }
+
+    override fun onDurationChanged(duration: Int) {
+        seekBarAudio.max = duration
+    }
+
+    override fun onPositionChanged(position: Int) {
+        if (!mUserIsSeeking) {
+            seekBarAudio.setProgress(position, true)
+            CoroutineScope(Dispatchers.Main).launch {
+                currentPositionPlay.text = viewModel.playerAdapter.currentPosition.toString()
+            }
+        }
+    }
+
 
     override fun onStateChanged(state: PlayerState) {
         when (state) {
@@ -203,7 +250,7 @@ class AlbumDetailFragment : Fragment(), PlayerStateListener, RVClickListener, Sl
         }
     }
 
-    override fun onStop() {
+    /*override fun onStop() {
         super.onStop()
         if (requireActivity().isChangingConfigurations && viewModel.playerAdapter.isPlaying()) {
             Log.d("toto", "onStop: don't release MediaPlayer as screen is rotating & playing")
@@ -211,6 +258,13 @@ class AlbumDetailFragment : Fragment(), PlayerStateListener, RVClickListener, Sl
             viewModel.playerAdapter.release()
             Log.d("toto", "onStop: release MediaPlayer")
         }
+    }*/
+
+    // Permet lecture background mais l'app doit etre tjrs ouverte -> detruit quand change d'ecran
+    override fun onDestroy() {
+        super.onDestroy()
+        viewModel.playerAdapter.release()
+        Log.d("toto", "onDestroy: release MediaPlayer")
     }
 
 }

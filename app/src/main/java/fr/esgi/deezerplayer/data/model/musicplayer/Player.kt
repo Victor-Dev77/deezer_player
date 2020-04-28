@@ -3,10 +3,17 @@ package fr.esgi.deezerplayer.data.model.musicplayer
 import android.media.AudioAttributes
 import android.media.MediaPlayer
 import android.util.Log
+import java.util.concurrent.Executors
+import java.util.concurrent.ScheduledExecutorService
+import java.util.concurrent.TimeUnit
 
 
 object Player : PlayerAdapter, MediaPlayer.OnPreparedListener, MediaPlayer.OnCompletionListener,
     MediaPlayer.OnErrorListener {
+
+    private const val PLAYBACK_POSITION_REFRESH_INTERVAL_MS = 1000 // update UI chaque sec (seekbar)
+    private var mExecutor: ScheduledExecutorService? = null
+    private var mSeekBarPositionUpdateTask: Runnable? = null
 
     private var player = initMediaPlayer()
 
@@ -17,6 +24,7 @@ object Player : PlayerAdapter, MediaPlayer.OnPreparedListener, MediaPlayer.OnCom
     }
 
     private lateinit var currentState: PlayerState
+    val currentPosition get() = player.currentPosition
 
 
     /*
@@ -25,14 +33,14 @@ object Player : PlayerAdapter, MediaPlayer.OnPreparedListener, MediaPlayer.OnCom
     override fun onPrepared(mp: MediaPlayer?) {
         Log.d("toto", "MediaPlayer prepared")
         //TODO: click track afficher loader. une fois ici envoyer callback pour enlever loader et lancer play dans la vue
-        player.start()
-        currentState = PlayerState.PLAYING
-        stateListener?.onStateChanged(PlayerState.PLAYING)
+        initializeProgressCallback()
+        play()
     }
 
     override fun onCompletion(mp: MediaPlayer?) {
         Log.d("toto", "MediaPlayer completed")
         seekTo(0)
+        stopUpdatingCallbackWithPosition(true)
         currentState = PlayerState.FINISH
         stateListener?.onStateChanged(PlayerState.FINISH)
         stateListener?.onTrackFinished()
@@ -92,6 +100,7 @@ object Player : PlayerAdapter, MediaPlayer.OnPreparedListener, MediaPlayer.OnCom
             player.start()
             currentState = PlayerState.PLAYING
             stateListener?.onStateChanged(PlayerState.PLAYING)
+            startUpdatingCallbackWithPosition()
         }
     }
 
@@ -107,6 +116,7 @@ object Player : PlayerAdapter, MediaPlayer.OnPreparedListener, MediaPlayer.OnCom
 
     override fun reset() {
         player.reset()
+        stopUpdatingCallbackWithPosition(true)
         currentState = PlayerState.RESET
         stateListener?.onStateChanged(PlayerState.RESET)
     }
@@ -118,6 +128,51 @@ object Player : PlayerAdapter, MediaPlayer.OnPreparedListener, MediaPlayer.OnCom
 
     override fun seekTo(position: Int) {
         player.seekTo(position)
+    }
+
+
+    /*
+        ####    SYNCHRO PLAYER POSITION WITH PROGRESS CALLBACK    ######
+     */
+    // TODO: refaire ces 2 func avec Coroutine si possible
+    private fun startUpdatingCallbackWithPosition() {
+        if (mExecutor == null) {
+            mExecutor = Executors.newSingleThreadScheduledExecutor()
+        }
+        if (mSeekBarPositionUpdateTask == null) {
+            mSeekBarPositionUpdateTask = Runnable { updateProgressCallbackTask() }
+        }
+        mExecutor!!.scheduleAtFixedRate(
+            mSeekBarPositionUpdateTask!!,
+            0,
+            PLAYBACK_POSITION_REFRESH_INTERVAL_MS.toLong(),
+            TimeUnit.MILLISECONDS
+        )
+    }
+
+    // Signal position lecture au callback
+    private fun stopUpdatingCallbackWithPosition(resetUIPlaybackPosition: Boolean) {
+        if (mExecutor != null) {
+            mExecutor!!.shutdownNow()
+            mExecutor = null
+            mSeekBarPositionUpdateTask = null
+            if (resetUIPlaybackPosition && stateListener != null) {
+                stateListener!!.onPositionChanged(0)
+            }
+        }
+    }
+
+    private fun updateProgressCallbackTask() {
+        if (isPlaying()) {
+            val currentPosition: Int = player.currentPosition
+            stateListener?.onPositionChanged(currentPosition)
+        }
+    }
+
+    override fun initializeProgressCallback() {
+        val duration: Int = player.duration
+        stateListener?.onDurationChanged(duration)
+        stateListener?.onPositionChanged(0)
     }
 
 }
