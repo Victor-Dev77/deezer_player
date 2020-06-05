@@ -1,26 +1,46 @@
 package fr.esgi.deezerplayer.data.model.musicplayer
 
+import android.content.Context
+import android.content.Intent
 import android.media.AudioAttributes
 import android.media.MediaPlayer
 import android.util.Log
+import fr.esgi.deezerplayer.data.model.Track
 import java.util.concurrent.Executors
 import java.util.concurrent.ScheduledExecutorService
 import java.util.concurrent.TimeUnit
 
 
-object Player : PlayerAdapter, MediaPlayer.OnPreparedListener, MediaPlayer.OnCompletionListener,
+object Player : PlayerAdapter, MediaPlayer.OnPreparedListener,
+    MediaPlayer.OnCompletionListener,
     MediaPlayer.OnErrorListener {
 
     private const val PLAYBACK_POSITION_REFRESH_INTERVAL_MS = 1000 // update UI chaque sec (seekbar)
     private var mExecutor: ScheduledExecutorService? = null
     private var mSeekBarPositionUpdateTask: Runnable? = null
+    private lateinit var context: Context
 
     private var player = initMediaPlayer()
 
     private var stateListener: PlayerStateListener? = null
 
+    fun setContext(context: Context) {
+        this.context = context
+    }
+
     fun setPlayerStateListener(listener: PlayerStateListener) {
         stateListener = listener
+    }
+
+    private var tracksList: List<Track>? = null
+    private var currentTrack: Track? = null
+
+    fun setTrackList(tracks: List<Track>?) {
+        this.tracksList = tracks
+    }
+
+    fun setCurrentTrack(track: Track?) {
+        this.currentTrack = track
     }
 
     private lateinit var currentState: PlayerState
@@ -34,6 +54,7 @@ object Player : PlayerAdapter, MediaPlayer.OnPreparedListener, MediaPlayer.OnCom
         Log.d("toto", "MediaPlayer prepared")
         //TODO: click track afficher loader. une fois ici envoyer callback pour enlever loader et lancer play dans la vue
         initializeProgressCallback()
+        //playBackgroundSound()
         play()
     }
 
@@ -55,7 +76,6 @@ object Player : PlayerAdapter, MediaPlayer.OnPreparedListener, MediaPlayer.OnCom
         currentState = PlayerState.RESET
         return true
     }
-
 
 
     /*
@@ -130,6 +150,36 @@ object Player : PlayerAdapter, MediaPlayer.OnPreparedListener, MediaPlayer.OnCom
         player.seekTo(position)
     }
 
+    override fun next(): Track? {
+        if (tracksList != null && currentTrack != null) {
+            pause()
+            currentTrack = if (currentTrack!!.trackPosition < tracksList!!.size) {
+                // Next track
+                tracksList!![currentTrack!!.trackPosition]
+            } else {
+                // load first track
+                tracksList!![0]
+            }
+            loadTrack(currentTrack!!.song)
+            return currentTrack
+        }
+        return null
+    }
+
+    override fun previous(): Track? {
+        if (tracksList != null && currentTrack != null) {
+            pause()
+            if (currentTrack!!.trackPosition != 1) {
+                // si c pas la 1ere track on peut previous
+                // -2 car trackPosition commence a 1 et pas 0
+                currentTrack = tracksList!![currentTrack!!.trackPosition - 2]
+                loadTrack(currentTrack!!.song)
+                return currentTrack
+            }
+        }
+        return null
+    }
+
 
     /*
         ####    SYNCHRO PLAYER POSITION WITH PROGRESS CALLBACK    ######
@@ -173,6 +223,19 @@ object Player : PlayerAdapter, MediaPlayer.OnPreparedListener, MediaPlayer.OnCom
         val duration: Int = player.duration
         stateListener?.onDurationChanged(duration)
         stateListener?.onPositionChanged(0)
+    }
+
+
+    // Service Function
+    private fun playBackgroundSound() {
+        val intent = Intent(context, BackgroundSoundService(this)::class.java)
+        context.startService(intent)
+    }
+
+    fun displayNotification(track: Track) {
+        val serviceIntent = Intent(context, NotificationService::class.java)
+        serviceIntent.action = Constants.ACTION.STARTFOREGROUND_ACTION
+        context.startService(serviceIntent)
     }
 
 }

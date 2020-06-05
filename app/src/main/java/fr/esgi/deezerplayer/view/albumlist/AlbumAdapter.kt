@@ -44,11 +44,11 @@ class AlbumAdapter(
 
             // loadImage ici car ne sait pas mettre dans BindingUtils
             // car ne sait pas comment avoir la ref de 2 vue (ImageView + Shimmer) directement dans le XML
-            loadImage(
+            /*loadImage(
                 recyclerViewAlbumBinding.albumCover, //recupere view (albumCover = id dans XML)
                 recyclerViewAlbumBinding.album!!.cover,
                 recyclerViewAlbumBinding.parentShimmerLayout // recupere view (parentShimmerLayout = id dans XML)
-            )
+            )*/
 
             // click listener sur tout l'item
             /*recyclerViewAlbumBinding.root.setOnClickListener {

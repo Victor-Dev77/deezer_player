@@ -1,15 +1,24 @@
 package fr.esgi.deezerplayer.view.albumdetail.viewmodel
 
+import android.content.Context
+import android.content.Intent
+import android.os.Bundle
+import android.os.Parcelable
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import fr.esgi.deezerplayer.data.model.Album
 import fr.esgi.deezerplayer.data.model.Track
+import fr.esgi.deezerplayer.data.model.musicplayer.Constants
+import fr.esgi.deezerplayer.data.model.musicplayer.NotificationService
 import fr.esgi.deezerplayer.data.model.musicplayer.Player
 import fr.esgi.deezerplayer.data.repositories.TrackRepository
 import fr.esgi.deezerplayer.util.Coroutines
+import fr.esgi.deezerplayer.view.MainActivity
 import kotlinx.coroutines.Job
 
 class AlbumDetailViewModel(
+    private val context: Context,
     private val repository: TrackRepository
 ) : ViewModel() {
 
@@ -22,9 +31,6 @@ class AlbumDetailViewModel(
     val tracks: LiveData<List<Track>> get() = _tracks
 
     private val _playerAdapter = Player
-    val playerAdapter get() = _playerAdapter
-    private val _currentTrack = MutableLiveData<Track?>()
-    val currentTrack: LiveData<Track?> get() = _currentTrack
 
     // Peut enlever suspend fun et remplace par coroutine job reference et gérer onCleared
     fun getTracks(albumID: Int) {
@@ -32,7 +38,6 @@ class AlbumDetailViewModel(
             { repository.getTracks(albumID) },
             {
                 _tracks.value = it
-                _currentTrack.value = _tracks.value!![0]
             } // callback
         )
     }
@@ -44,31 +49,21 @@ class AlbumDetailViewModel(
     }
 
     fun setCurrentTrack(track: Track) {
-        _currentTrack.value = track
+        _playerAdapter.setCurrentTrack(track)
     }
 
-    fun nextTrack() {
-        if (_tracks.value != null && currentTrack.value != null) {
-            if (currentTrack.value!!.trackPosition < _tracks.value!!.size) {
-                // Next track
-                _currentTrack.value = _tracks.value!![currentTrack.value!!.trackPosition]
-            }
-            else {
-                // load first track
-                _currentTrack.value = _tracks.value!![0]
-            }
-            playerAdapter.loadTrack(_currentTrack.value!!.song)
-        }
+    fun setTrackList(tracks: List<Track>?) {
+        _playerAdapter.setTrackList(tracks)
     }
 
-    fun previousTrack() {
-        if (_tracks.value != null && currentTrack.value != null) {
-            if (currentTrack.value!!.trackPosition != 1) {
-                // si c pas la 1ere track on peut previous
-                // -2 car trackPosition commence a 1 et pas 0
-                _currentTrack.value = _tracks.value!![currentTrack.value!!.trackPosition - 2]
-                playerAdapter.loadTrack(_currentTrack.value!!.song)
-            }
-        }
+    fun startPlayer(track: Track, album: Album) {
+        _playerAdapter.loadTrack(track.song)
+        // display Notification
+        val serviceIntent = Intent(context, NotificationService::class.java)
+        serviceIntent.putExtra("album", album)
+        serviceIntent.putExtra("track", track)
+        serviceIntent.action = Constants.ACTION.STARTFOREGROUND_ACTION
+        context.startService(serviceIntent)
     }
+
 }

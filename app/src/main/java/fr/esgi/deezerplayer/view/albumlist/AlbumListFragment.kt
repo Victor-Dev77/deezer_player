@@ -7,6 +7,7 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.TextView
 import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
@@ -66,6 +67,7 @@ class AlbumListFragment : Fragment(), RVClickListener {
             // album_rcv = id recyclerview dans XML <=> comme findviewbyid
             album_rcv.also {
                 // init recyclerview
+                it.isNestedScrollingEnabled = false
                 it.layoutManager = GridLayoutManager(requireContext(), 3)
                 it.addItemDecoration(SpaceGrid(3, 30, true))
                 /*albumsRecyclerView.addItemDecoration(
@@ -75,7 +77,6 @@ class AlbumListFragment : Fragment(), RVClickListener {
                 it.adapter = AlbumAdapter(albums, this)
             }
         })
-
     }
 
     // interface click item recyclerview pour traiter la demande dans la vue et pas dans la logic

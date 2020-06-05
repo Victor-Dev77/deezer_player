@@ -2,58 +2,35 @@ package fr.esgi.deezerplayer.view.albumdetail
 
 import android.os.Bundle
 import android.util.Log
-import android.view.KeyEvent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.*
-import android.widget.SeekBar.OnSeekBarChangeListener
-import androidx.activity.OnBackPressedCallback
-import androidx.appcompat.widget.AppCompatSeekBar
 import androidx.appcompat.widget.Toolbar
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
-import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.sothree.slidinguppanel.SlidingUpPanelLayout
 import fr.esgi.deezerplayer.R
 import fr.esgi.deezerplayer.data.api.TrackAPI
-import fr.esgi.deezerplayer.data.model.Track
-import fr.esgi.deezerplayer.data.model.musicplayer.PlayerState
-import fr.esgi.deezerplayer.data.model.musicplayer.PlayerStateListener
 import fr.esgi.deezerplayer.data.repositories.TrackRepository
 import fr.esgi.deezerplayer.databinding.AlbumDetailFragmentBinding
-import fr.esgi.deezerplayer.util.loadImage
+import fr.esgi.deezerplayer.view.MainActivity
 import fr.esgi.deezerplayer.view.RVClickListener
 import fr.esgi.deezerplayer.view.albumdetail.viewmodel.AlbumDetailViewModel
 import fr.esgi.deezerplayer.view.albumdetail.viewmodel.AlbumDetailViewModelFactory
+import fr.esgi.deezerplayer.view.mainBinding
 import kotlinx.android.synthetic.main.album_detail_fragment.*
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 
-class AlbumDetailFragment : Fragment(), PlayerStateListener, RVClickListener, SlidingUpPanelLayout.PanelSlideListener {
+class AlbumDetailFragment : Fragment(), RVClickListener {
 
     private lateinit var factory: AlbumDetailViewModelFactory
     private lateinit var viewModel: AlbumDetailViewModel
-    private lateinit var binding: AlbumDetailFragmentBinding
 
     // recupere parametres envoyé dans la navigation
     private val args by navArgs<AlbumDetailFragmentArgs>()
-
-    private lateinit var playerPanel: SlidingUpPanelLayout
-    private lateinit var playerBar: LinearLayout
-    private lateinit var playBtnBar: ImageButton
-    private lateinit var pauseBtnBar: ImageButton
-    private lateinit var playBtnPlayer: ImageButton
-    private lateinit var pauseBtnPlayer: ImageButton
-    private lateinit var seekBarAudio: AppCompatSeekBar
-    private lateinit var currentPositionPlay: TextView
-    private var mUserIsSeeking = false
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -66,7 +43,6 @@ class AlbumDetailFragment : Fragment(), PlayerStateListener, RVClickListener, Sl
             container,
             false
         )
-        binding = viewBinding
         // Set variable dans XML (album) par valeur (albumItem)
         viewBinding.album = args.albumItem
         return viewBinding.root
@@ -79,6 +55,7 @@ class AlbumDetailFragment : Fragment(), PlayerStateListener, RVClickListener, Sl
         val repository = TrackRepository(api)
         factory =
             AlbumDetailViewModelFactory(
+                this@AlbumDetailFragment.requireContext(),
                 repository
             )
         viewModel = ViewModelProviders.of(this, factory).get(AlbumDetailViewModel::class.java)
@@ -101,12 +78,6 @@ class AlbumDetailFragment : Fragment(), PlayerStateListener, RVClickListener, Sl
                 it.adapter = TrackAdapter(tracks, this)
             }
         })
-
-        viewModel.playerAdapter.setPlayerStateListener(this@AlbumDetailFragment)
-
-        viewModel.currentTrack.observe(viewLifecycleOwner, Observer { track ->
-            binding.track = track
-        })
     }
 
 
@@ -116,31 +87,9 @@ class AlbumDetailFragment : Fragment(), PlayerStateListener, RVClickListener, Sl
         with(view) {
             val toolbar: Toolbar = findViewById(R.id.toolbar)
             toolbar.setNavigationOnClickListener { requireActivity().onBackPressed() }
-
-            seekBarAudio = findViewById(R.id.player_content_seekbar)
-            currentPositionPlay = findViewById(R.id.player_content_current_position)
-            playBtnBar = findViewById(R.id.player_btn_play)
-            playBtnPlayer = findViewById(R.id.player_content_btn_play)
-            pauseBtnBar = findViewById(R.id.player_btn_pause)
-            pauseBtnPlayer = findViewById(R.id.player_content_btn_pause)
-            playerBar = findViewById(R.id.player_bar)
-            playerPanel = findViewById(R.id.player_sliding)
-            playerPanel.panelState = SlidingUpPanelLayout.PanelState.HIDDEN // caché player bar
-            playerPanel.addPanelSlideListener(this@AlbumDetailFragment)
-
-            // Click Listener
-            playBtnBar.setOnClickListener { viewModel.playerAdapter.play() }
-            playBtnPlayer.setOnClickListener { viewModel.playerAdapter.play() }
-            pauseBtnBar.setOnClickListener { viewModel.playerAdapter.pause() }
-            pauseBtnPlayer.setOnClickListener { viewModel.playerAdapter.pause() }
-            findViewById<ImageButton>(R.id.player_btn_forward).setOnClickListener { viewModel.nextTrack() }
-            findViewById<ImageButton>(R.id.player_content_btn_forward).setOnClickListener { viewModel.nextTrack() }
-            findViewById<ImageButton>(R.id.player_btn_rewind).setOnClickListener { viewModel.previousTrack() }
-            findViewById<ImageButton>(R.id.player_content_btn_rewind).setOnClickListener { viewModel.previousTrack() }
         }
-
         // gere back button -> si player ouvert plein ecran -> le reduit au lieu de retour arriere
-        activity?.onBackPressedDispatcher?.addCallback(viewLifecycleOwner, object : OnBackPressedCallback(true) {
+       /* activity?.onBackPressedDispatcher?.addCallback(viewLifecycleOwner, object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
                 if (playerPanel.panelState == SlidingUpPanelLayout.PanelState.EXPANDED) {
                     // reduit UI Player
@@ -148,121 +97,22 @@ class AlbumDetailFragment : Fragment(), PlayerStateListener, RVClickListener, Sl
                 } else
                     findNavController().popBackStack()
             }
-        })
-
-        initializeSeekBar()
-
-        loadImage(
-            binding.albumDetailCover,
-            args.albumItem.cover,
-            binding.albumDetailShimmer
-        )
-
-    }
-
-    private fun initializeSeekBar() {
-        seekBarAudio.setOnSeekBarChangeListener(
-            object : OnSeekBarChangeListener {
-                var userSelectedPosition = 0
-                override fun onStartTrackingTouch(seekBar: SeekBar) {
-                    mUserIsSeeking = true
-                }
-
-                override fun onProgressChanged(
-                    seekBar: SeekBar,
-                    progress: Int,
-                    fromUser: Boolean
-                ) {
-                    if (fromUser) {
-                        userSelectedPosition = progress
-                        currentPositionPlay.text = progress.toString()
-                    }
-                }
-
-                override fun onStopTrackingTouch(seekBar: SeekBar) {
-                    mUserIsSeeking = false
-                    viewModel.playerAdapter.seekTo(userSelectedPosition)
-                }
-            })
-    }
-
-    override fun onTrackFinished() {
-        Toast.makeText(requireContext(), "track finish", Toast.LENGTH_SHORT).show()
-        updateUIPlayingTrack(false)
-        //passer a track suivante
-        viewModel.nextTrack()
-    }
-
-    override fun onDurationChanged(duration: Int) {
-        seekBarAudio.max = duration
-    }
-
-    override fun onPositionChanged(position: Int) {
-        if (!mUserIsSeeking) {
-            seekBarAudio.setProgress(position, true)
-            CoroutineScope(Dispatchers.Main).launch {
-                currentPositionPlay.text = viewModel.playerAdapter.currentPosition.toString()
-            }
-        }
-    }
-
-
-    override fun onStateChanged(state: PlayerState) {
-        when (state) {
-            PlayerState.PLAYING -> updateUIPlayingTrack(true)
-            PlayerState.PAUSED -> updateUIPlayingTrack(false)
-            else -> Log.d("toto", state.name)
-        }
+        })*/
     }
 
     override fun <Track> onRecyclerViewItemClick(view: View, data: Track) {
         val track = data as fr.esgi.deezerplayer.data.model.Track
-        binding.track = track
+        mainBinding.track = track
+        mainBinding.album = args.albumItem
+        viewModel.setTrackList(viewModel.tracks.value)
         viewModel.setCurrentTrack(track)
-        // rootview car param view est def dans TrackAdapter et est view du recyclerview
-        // donc peut pas acceder aux vues de la cover, title, etc
-        val viewRoot = playerPanel.rootView
-        updatePlayerUI(viewRoot, track)
-        updateUIPlayingTrack(false)
-        viewModel.playerAdapter.loadTrack(track.song)
+
+        val fragment = activity as MainActivity
+        fragment.updatePlayerUI(fragment.findViewById(R.id.player_sliding), track)
+        fragment.updateUIPlayingTrack(false)
+        viewModel.startPlayer(track, args.albumItem)
     }
 
-    private fun updatePlayerUI(view: View, track: Track) {
-        playerPanel.panelState = SlidingUpPanelLayout.PanelState.COLLAPSED // affiché player bar
-        loadImage(
-            view.findViewById(R.id.player_content_cover),
-            args.albumItem.cover,
-            view.findViewById(R.id.player_content_shimmer)
-        )
-    }
-
-    private fun updateUIPlayingTrack(isPlaying: Boolean) {
-        // Hide Play Btn
-        playBtnBar.visibility = if (isPlaying) View.GONE else View.VISIBLE
-        playBtnPlayer.visibility = if (isPlaying) View.GONE else View.VISIBLE
-        // Show Pause Btn
-        pauseBtnBar.visibility = if (isPlaying) View.VISIBLE else View.GONE
-        pauseBtnPlayer.visibility = if (isPlaying) View.VISIBLE else View.GONE
-    }
-
-    override fun onPanelSlide(panel: View?, slideOffset: Float) {
-        //Log.d("toto", "offset: " + slideOffset)
-        // TODO: ici - utiliser CollapsedToolBar OU en fonction val offset set visibility player bar avec anim fadeIn
-    }
-
-    override fun onPanelStateChanged(
-        panel: View?,
-        previousState: SlidingUpPanelLayout.PanelState?,
-        newState: SlidingUpPanelLayout.PanelState?
-    ) {
-        // LE FAIRE DANS OnPanelSlide pour faire effet anim car la trop brusque
-        if (newState == SlidingUpPanelLayout.PanelState.EXPANDED) {
-            playerBar.visibility = View.GONE
-        }
-        else if (newState == SlidingUpPanelLayout.PanelState.COLLAPSED) {
-            playerBar.visibility = View.VISIBLE
-        }
-    }
 
     /*override fun onStop() {
         super.onStop()
@@ -277,7 +127,7 @@ class AlbumDetailFragment : Fragment(), PlayerStateListener, RVClickListener, Sl
     // Permet lecture background mais l'app doit etre tjrs ouverte -> detruit quand change d'ecran
     override fun onDestroy() {
         super.onDestroy()
-        viewModel.playerAdapter.release()
+       // viewModel.playerAdapter.release()
         Log.d("toto", "onDestroy: release MediaPlayer")
     }
 
