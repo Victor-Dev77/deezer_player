@@ -4,7 +4,6 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <data>
-
         <variable
             name="album"
             type="fr.esgi.deezerplayer.data.model.Album" />
@@ -12,11 +11,14 @@
         <variable
             name="track"
             type="fr.esgi.deezerplayer.data.model.Track" />
+
+        <variable name="handler" type="fr.esgi.deezerplayer.util.BindingUtils" />
     </data>
 
     <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:background="@color/black">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
@@ -26,18 +28,33 @@
                 android:id="@+id/toolbar"
                 android:layout_width="match_parent"
                 android:layout_height="?attr/actionBarSize"
-                android:background="?attr/colorPrimary"
-                android:theme="@style/ThemeOverlay.AppCompat.ActionBar"
+                android:background="@color/black"
+                android:theme="@style/ToolbarTheme"
                 app:layout_constraintTop_toTopOf="parent"
                 app:navigationIcon="?attr/homeAsUpIndicator"
                 app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
                 app:title="@{album.title}"
-                tools:title="Album Title" />
+                tools:title="Album Title"
+                app:titleTextColor="@color/white">
+
+                <ImageButton
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/share_album"
+                    android:layout_gravity="end"
+                    android:layout_marginEnd="16dp"
+                    android:src="@drawable/ic_share"
+                    android:contentDescription="@string/imageShare"
+                    android:background="@color/transparent"
+                    android:onClick="@{(view) -> handler.shareAlbum(view, album.id)}"/>
+
+            </androidx.appcompat.widget.Toolbar>
 
             <androidx.core.widget.NestedScrollView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:layout_constraintTop_toBottomOf="@+id/toolbar">
+                app:layout_constraintTop_toBottomOf="@+id/toolbar"
+                android:background="@color/colorPrimaryDark">
 
                 <androidx.constraintlayout.widget.ConstraintLayout
                     android:layout_width="match_parent"
@@ -57,7 +74,8 @@
                             android:id="@+id/album_detail_cover"
                             android:layout_width="150dp"
                             android:layout_height="150dp"
-                            android:src="@color/colorAccent"
+                            android:src="@color/grey"
+                            android:contentDescription="@string/imageCover"
                             app:cover="@{album.cover}" />
 
                     </com.facebook.shimmer.ShimmerFrameLayout>
@@ -69,7 +87,7 @@
                         android:layout_marginTop="20dp"
                         android:text="@{album.title}"
                         android:textAlignment="center"
-                        android:textColor="@color/black"
+                        android:textColor="@color/white"
                         android:textSize="30sp"
                         android:textStyle="bold"
                         app:layout_constraintLeft_toLeftOf="parent"
@@ -86,6 +104,7 @@
                         android:textAlignment="center"
                         android:textSize="15sp"
                         android:textStyle="bold"
+                        android:textColor="@color/grey"
                         app:layout_constraintLeft_toLeftOf="parent"
                         app:layout_constraintRight_toRightOf="parent"
                         app:layout_constraintTop_toBottomOf="@+id/album_detail_title"
@@ -96,12 +115,13 @@
                         android:layout_width="250dp"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="5dp"
-                        android:text='@{album.releaseDate}'
                         android:textAlignment="center"
                         android:textStyle="bold"
+                        android:textColor="@color/grey"
                         app:layout_constraintLeft_toLeftOf="parent"
                         app:layout_constraintRight_toRightOf="parent"
                         app:layout_constraintTop_toBottomOf="@+id/album_detail_artist_name"
+                        app:date_album="@{album.releaseDate}"
                         tools:text="7 nov. 2019" />
 
                     <androidx.recyclerview.widget.RecyclerView

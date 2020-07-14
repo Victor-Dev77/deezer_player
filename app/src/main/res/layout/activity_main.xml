@@ -11,6 +11,8 @@
         <variable
             name="track"
             type="fr.esgi.deezerplayer.data.model.Track" />
+
+        <variable name="handler" type="fr.esgi.deezerplayer.util.BindingUtils" />
     </data>
 
     <com.sothree.slidinguppanel.SlidingUpPanelLayout
@@ -21,7 +23,8 @@
         app:umanoDragView="@+id/dragView"
         app:umanoOverlay="true"
         app:umanoPanelHeight="68dp"
-        app:umanoShadowHeight="4dp">
+        app:umanoShadowHeight="0dp"
+        android:background="@color/colorPrimaryDark">
 
         <!-- MAIN CONTENT -->
         <!-- fragment page d'acceuil avec NavGraph -->
@@ -37,7 +40,8 @@
         <include
             layout="@layout/sliding_player_content"
             app:album="@{album}"
-            app:track="@{track}" />
+            app:track="@{track}"
+            app:handler="@{handler}"/>
 
     </com.sothree.slidinguppanel.SlidingUpPanelLayout>
 

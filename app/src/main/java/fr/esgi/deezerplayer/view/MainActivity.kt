@@ -1,6 +1,7 @@
 package fr.esgi.deezerplayer.view
 
-import android.content.IntentFilter
+import android.net.Uri
+import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
@@ -9,18 +10,20 @@ import android.widget.*
 import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.widget.AppCompatSeekBar
 import androidx.databinding.DataBindingUtil
-import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
 import com.sothree.slidinguppanel.SlidingUpPanelLayout
 import fr.esgi.deezerplayer.R
-import fr.esgi.deezerplayer.data.model.Track
+import fr.esgi.deezerplayer.data.api.TrackAPI
 import fr.esgi.deezerplayer.data.model.musicplayer.*
+import fr.esgi.deezerplayer.data.repositories.TrackRepository
 import fr.esgi.deezerplayer.databinding.ActivityMainBinding
+import fr.esgi.deezerplayer.util.Coroutines
+import fr.esgi.deezerplayer.view.albumlist.AlbumListFragmentDirections
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import org.w3c.dom.Text
+import java.lang.Exception
 
 lateinit var mainBinding: ActivityMainBinding
 
@@ -42,6 +45,46 @@ class MainActivity : AppCompatActivity(), PlayerStateListener, SlidingUpPanelLay
         //setContentView(R.layout.activity_main)
         mainBinding = DataBindingUtil.setContentView(this, R.layout.activity_main)
 
+
+        //DEEPLINK
+        //TODO: mettre intent ici + creer singleton + mettre traitement / nav dans albumListFragment a onCreate
+        val data: Uri? = intent?.data
+        Log.d("toto", "deeplink: " + data?.getQueryParameter("album") + " - track: " + data?.getQueryParameter("track"))
+        data?.let {
+            try {
+                val valueParamAlbum = (it.getQueryParameter("album"))?.toInt()
+                val valueParamTrack = (it.getQueryParameter("track"))?.toInt()
+                valueParamAlbum?.let {
+                    val api = TrackAPI()
+                    val repository = TrackRepository(api)
+                    Coroutines.ioThenMain(
+                        { repository.getAlbum(it) },
+                        { albumRes ->
+                            Log.d("toto", "album: $albumRes")
+                            albumRes?.let { album ->
+                                val navHostFragment =
+                                    supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as NavHostFragment
+                                val navController: NavController = navHostFragment.navController
+                                navController.navigate(
+                                    AlbumListFragmentDirections.actionAlbumListFragmentToAlbumDetailFragment(
+                                        album, valueParamTrack ?: 0
+                                    )
+                                )
+                            }
+                        } // callback
+                    )
+                }
+            } catch (e: Exception) {
+                Log.d("toto", "ERROR: parameter deeplink not cast to int")
+            }
+        }
+
+
+
+        // NOTIFICATION
+        CreateNotification.createChannel(this)
+        CreateNotification.registerReceiver(this)
+
         playerPanel = findViewById(R.id.player_sliding)
         playerPanel.panelState = SlidingUpPanelLayout.PanelState.HIDDEN // caché player bar
 
@@ -53,14 +96,13 @@ class MainActivity : AppCompatActivity(), PlayerStateListener, SlidingUpPanelLay
         pauseBtnPlayer = findViewById(R.id.player_content_btn_pause)
         playerBar = findViewById(R.id.player_bar)
         playerPanel = findViewById(R.id.player_sliding)
-        playerPanel.panelState = SlidingUpPanelLayout.PanelState.HIDDEN // caché player bar
         playerPanel.addPanelSlideListener(this@MainActivity)
 
         // Click Listener
-        playBtnBar.setOnClickListener { player.play() }
-        playBtnPlayer.setOnClickListener { player.play() }
-        pauseBtnBar.setOnClickListener { player.pause() }
-        pauseBtnPlayer.setOnClickListener { player.pause() }
+        playBtnBar.setOnClickListener { player.onTrackPlay() }
+        playBtnPlayer.setOnClickListener { player.onTrackPlay() }
+        pauseBtnBar.setOnClickListener { player.onTrackPause() }
+        pauseBtnPlayer.setOnClickListener { player.onTrackPause() }
         findViewById<ImageButton>(R.id.player_btn_forward).setOnClickListener { nextTrack() }
         findViewById<ImageButton>(R.id.player_content_btn_forward).setOnClickListener { nextTrack() }
         findViewById<ImageButton>(R.id.player_btn_rewind).setOnClickListener { previousTrack() }
@@ -119,14 +161,14 @@ class MainActivity : AppCompatActivity(), PlayerStateListener, SlidingUpPanelLay
     }
 
     private fun nextTrack() {
-        val track = player.next()
+        val track = player.onTrackNext()
         if (track != null) {
             mainBinding.track = track
         }
     }
 
     private fun previousTrack() {
-        val track = player.previous()
+        val track = player.onTrackPrevious()
         if (track != null) {
             mainBinding.track = track
         }
@@ -136,6 +178,10 @@ class MainActivity : AppCompatActivity(), PlayerStateListener, SlidingUpPanelLay
         when (state) {
             PlayerState.PLAYING -> updateUIPlayingTrack(true)
             PlayerState.PAUSED -> updateUIPlayingTrack(false)
+            PlayerState.RESET -> {
+                updateUIPlayingTrack(true)
+                releasePlayer()
+            }
             else -> Log.d("toto", state.name)
         }
     }
@@ -144,7 +190,7 @@ class MainActivity : AppCompatActivity(), PlayerStateListener, SlidingUpPanelLay
         Toast.makeText(this, "track finish", Toast.LENGTH_SHORT).show()
         updateUIPlayingTrack(false)
         //passer a track suivante
-        player.next()
+        nextTrack()
     }
 
     override fun onDurationChanged(duration: Int) {
@@ -179,17 +225,12 @@ class MainActivity : AppCompatActivity(), PlayerStateListener, SlidingUpPanelLay
         }
     }
 
-    fun updatePlayerUI(view: View, track: Track) {
+    fun updatePlayerUI() {
         playerPanel.panelState = SlidingUpPanelLayout.PanelState.COLLAPSED // affiché player bar
-        /*loadImage(
-            view.findViewById(R.id.player_content_cover),
-            args.albumItem.cover,
-            view.findViewById(R.id.player_content_shimmer)
-        )*/
     }
 
-    fun releasePlayer() {
-        playerPanel.panelState = SlidingUpPanelLayout.PanelState.HIDDEN
+    private fun releasePlayer() {
+        playerPanel.panelState = SlidingUpPanelLayout.PanelState.HIDDEN // caché player bar
     }
 
     fun updateUIPlayingTrack(isPlaying: Boolean) {
@@ -199,5 +240,19 @@ class MainActivity : AppCompatActivity(), PlayerStateListener, SlidingUpPanelLay
         // Show Pause Btn
         pauseBtnBar.visibility = if (isPlaying) View.VISIBLE else View.GONE
         pauseBtnPlayer.visibility = if (isPlaying) View.VISIBLE else View.GONE
+
+        if (isPlaying) {
+            val track = Player.getCurrentTrack()
+            if (track != null)
+                mainBinding.track = track
+        }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            CreateNotification.destroy()
+        }
+        CreateNotification.unregisterReceiver(this)
     }
 }

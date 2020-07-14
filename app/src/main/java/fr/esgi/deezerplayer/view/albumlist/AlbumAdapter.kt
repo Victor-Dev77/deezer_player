@@ -7,7 +7,6 @@ import androidx.recyclerview.widget.RecyclerView
 import fr.esgi.deezerplayer.R
 import fr.esgi.deezerplayer.data.model.Album
 import fr.esgi.deezerplayer.databinding.ItemAlbumRecyclerviewBinding
-import fr.esgi.deezerplayer.util.loadImage
 import fr.esgi.deezerplayer.view.RVClickListener
 
 
@@ -41,23 +40,6 @@ class AlbumAdapter(
             // .album se trouve dans <variable> dans xml
             // met a jour les valeurs dans xml tout seul
             recyclerViewAlbumBinding.album = albums[position]
-
-            // loadImage ici car ne sait pas mettre dans BindingUtils
-            // car ne sait pas comment avoir la ref de 2 vue (ImageView + Shimmer) directement dans le XML
-            /*loadImage(
-                recyclerViewAlbumBinding.albumCover, //recupere view (albumCover = id dans XML)
-                recyclerViewAlbumBinding.album!!.cover,
-                recyclerViewAlbumBinding.parentShimmerLayout // recupere view (parentShimmerLayout = id dans XML)
-            )*/
-
-            // click listener sur tout l'item
-            /*recyclerViewAlbumBinding.root.setOnClickListener {
-                Log.d("toto", "pos: " + position)
-            }*/
-            // click listener sur un composant du XML spécifique
-            /*recyclerViewAlbumBinding.albumTitle.setOnClickListener {
-                Log.d("toto", "title clicked")
-            }*/
 
             // Si on veut faire callback vers la vue quand item cliqué pour startActivity par exemple
             recyclerViewAlbumBinding.root.setOnClickListener {

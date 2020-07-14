@@ -7,4 +7,22 @@
     <string name="cd_play">Play and pause</string>
     <string name="cd_next">Skip forwards</string>
     <string name="cd_rewind">Skip Rewind</string>
+    <string name="imageShare">Image share</string>
+    <string name="imageCover">Image cover</string>
+    <string name="imagePrevious">Image previous</string>
+    <string name="imagePlay">Image play</string>
+    <string name="imagePause">Image pause</string>
+    <string name="imageNext">Image next</string>
+    <string name="initCurrentPosition">0:00</string>
+
+    <!-- Heading for the app widget ID panel. -->
+    <string name="widget_id_label">Widget ID</string>
+
+    <!-- Heading for the updated panel. -->
+    <string name="widget_title_track">Titre</string>
+    <string name="widget_artist_name">Artiste</string>
+
+    <!-- Button label for the update button. -->
+    <string name="widget_button_update">Update now</string>
+
 </resources>

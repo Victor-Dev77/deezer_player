@@ -3,11 +3,11 @@ package fr.esgi.deezerplayer.view.albumlist
 import android.graphics.Rect
 import androidx.lifecycle.ViewModelProviders
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
 import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
@@ -82,6 +82,7 @@ class AlbumListFragment : Fragment(), RVClickListener {
     // interface click item recyclerview pour traiter la demande dans la vue et pas dans la logic
     // ex: naviguer vers autre page, Toast, update view etc
     override fun <Album> onRecyclerViewItemClick(view: View, data: Album) {
+        Log.d("toto", "id album: " + (data as fr.esgi.deezerplayer.data.model.Album).id)
         // faire un when (<=> switch) et comparer les id du param view
         // si on a associé le click sur plusieurs elem de la vue XML pour exec des actions différentes
 

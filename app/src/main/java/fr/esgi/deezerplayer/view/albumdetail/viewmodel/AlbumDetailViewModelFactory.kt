@@ -4,11 +4,10 @@ import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import fr.esgi.deezerplayer.data.repositories.TrackRepository
-import fr.esgi.deezerplayer.view.MainActivity
 
 @Suppress("UNCHECKED_CAST") // seulement pour la compil et avoir check vert du fichier
 // Factory qui creer le viewModel
-class AlbumDetailViewModelFactory (
+class AlbumDetailViewModelFactory(
     private val context: Context,
     private val repository: TrackRepository
 ) : ViewModelProvider.NewInstanceFactory() {

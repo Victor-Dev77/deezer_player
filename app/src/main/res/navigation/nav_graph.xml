@@ -24,6 +24,10 @@
         <argument
             android:name="albumItem"
             app:argType="fr.esgi.deezerplayer.data.model.Album" />
+        <argument
+            android:name="trackId"
+            app:argType="integer"
+            android:defaultValue="0" />
     </fragment>
 
 </navigation>

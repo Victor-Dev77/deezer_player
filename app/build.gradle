@@ -62,6 +62,7 @@ dependencies {
     implementation "androidx.recyclerview:recyclerview:1.1.0"
     implementation 'androidx.cardview:cardview:1.0.0'
     implementation 'com.google.android.material:material:1.2.0-alpha01'
+    implementation 'androidx.media:media:1.1.0'
 
     // SlidingUpPanel for Player UI
     implementation 'com.sothree.slidinguppanel:library:3.4.0'

@@ -1,11 +1,14 @@
 package fr.esgi.deezerplayer.data.model.musicplayer
 
 import android.content.Context
-import android.content.Intent
 import android.media.AudioAttributes
 import android.media.MediaPlayer
+import android.os.PowerManager
 import android.util.Log
+import fr.esgi.deezerplayer.R
+import fr.esgi.deezerplayer.data.model.Album
 import fr.esgi.deezerplayer.data.model.Track
+import fr.esgi.deezerplayer.view.AppWidgetHandle
 import java.util.concurrent.Executors
 import java.util.concurrent.ScheduledExecutorService
 import java.util.concurrent.TimeUnit
@@ -13,7 +16,7 @@ import java.util.concurrent.TimeUnit
 
 object Player : PlayerAdapter, MediaPlayer.OnPreparedListener,
     MediaPlayer.OnCompletionListener,
-    MediaPlayer.OnErrorListener {
+    MediaPlayer.OnErrorListener, Playable {
 
     private const val PLAYBACK_POSITION_REFRESH_INTERVAL_MS = 1000 // update UI chaque sec (seekbar)
     private var mExecutor: ScheduledExecutorService? = null
@@ -26,6 +29,7 @@ object Player : PlayerAdapter, MediaPlayer.OnPreparedListener,
 
     fun setContext(context: Context) {
         this.context = context
+        player.setWakeMode(context, PowerManager.PARTIAL_WAKE_LOCK)
     }
 
     fun setPlayerStateListener(listener: PlayerStateListener) {
@@ -34,6 +38,7 @@ object Player : PlayerAdapter, MediaPlayer.OnPreparedListener,
 
     private var tracksList: List<Track>? = null
     private var currentTrack: Track? = null
+    private var album: Album? = null
 
     fun setTrackList(tracks: List<Track>?) {
         this.tracksList = tracks
@@ -43,7 +48,19 @@ object Player : PlayerAdapter, MediaPlayer.OnPreparedListener,
         this.currentTrack = track
     }
 
+    fun setAlbum(album: Album?) {
+        this.album = album
+    }
+
+    fun getAlbum() = this.album
+
+    fun getTrackList() = this.tracksList
+
+    fun getCurrentTrack() = this.currentTrack
+
     private lateinit var currentState: PlayerState
+    fun getPlayerState() = currentState
+
     val currentPosition get() = player.currentPosition
 
 
@@ -56,6 +73,7 @@ object Player : PlayerAdapter, MediaPlayer.OnPreparedListener,
         initializeProgressCallback()
         //playBackgroundSound()
         play()
+        AppWidgetHandle.updateAppWidget(context)
     }
 
     override fun onCompletion(mp: MediaPlayer?) {
@@ -68,12 +86,7 @@ object Player : PlayerAdapter, MediaPlayer.OnPreparedListener,
     }
 
     override fun onError(mp: MediaPlayer, what: Int, extra: Int): Boolean {
-        Log.d("toto", "ERROR MediaPlayer: what -> " + what + " / extra: " + extra)
-        if (what == MediaPlayer.MEDIA_ERROR_SERVER_DIED)
-            mp.reset()
-        else if (what == MediaPlayer.MEDIA_ERROR_UNKNOWN)
-            mp.reset()
-        currentState = PlayerState.RESET
+        reset()
         return true
     }
 
@@ -96,17 +109,6 @@ object Player : PlayerAdapter, MediaPlayer.OnPreparedListener,
     }
 
     override fun loadTrack(url: String) {
-        /* try {
-             player.setDataSource(url)
-         } catch (e: Exception) {
-             Log.d("toto", "ERROR Load: setdatasource -> " + e.stackTrace)
-         }
-
-         try {
-             player.prepareAsync()
-         } catch (e: Exception) {
-             Log.d("toto", "ERROR Load: prepareAsync -> " + e.stackTrace)
-         }*/
         if (currentState == PlayerState.RELEASED) {
             player = initMediaPlayer()
         }
@@ -227,15 +229,61 @@ object Player : PlayerAdapter, MediaPlayer.OnPreparedListener,
 
 
     // Service Function
-    private fun playBackgroundSound() {
-        val intent = Intent(context, BackgroundSoundService(this)::class.java)
-        context.startService(intent)
+    override fun onTrackPrevious(): Track? {
+        val track = previous()
+        setCurrentTrack(track)
+        CreateNotification.createNotification(
+            context,
+            album,
+            currentTrack,
+            R.drawable.ic_pause,
+            currentTrack!!.trackPosition,
+            tracksList!!.size
+        )
+        AppWidgetHandle.updateAppWidget(context)
+        return track
     }
 
-    fun displayNotification(track: Track) {
-        val serviceIntent = Intent(context, NotificationService::class.java)
-        serviceIntent.action = Constants.ACTION.STARTFOREGROUND_ACTION
-        context.startService(serviceIntent)
+    override fun onTrackPlay() {
+        play()
+        CreateNotification.createNotification(
+            context,
+            album,
+            currentTrack,
+            R.drawable.ic_pause,
+            currentTrack!!.trackPosition,
+            tracksList!!.size
+        )
+        AppWidgetHandle.updateAppWidget(context)
     }
+
+    override fun onTrackPause() {
+        pause()
+        CreateNotification.createNotification(
+            context,
+            album,
+            currentTrack,
+            R.drawable.ic_play,
+            currentTrack!!.trackPosition,
+            tracksList!!.size
+        )
+        AppWidgetHandle.updateAppWidget(context)
+    }
+
+    override fun onTrackNext(): Track? {
+        val track = next()
+        setCurrentTrack(track)
+        CreateNotification.createNotification(
+            context,
+            album,
+            currentTrack,
+            R.drawable.ic_pause,
+            currentTrack!!.trackPosition,
+            tracksList!!.size
+        )
+        AppWidgetHandle.updateAppWidget(context)
+        return track
+    }
+
 
 }

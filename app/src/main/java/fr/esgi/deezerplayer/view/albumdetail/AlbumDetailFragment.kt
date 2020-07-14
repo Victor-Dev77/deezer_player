@@ -15,8 +15,10 @@ import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import fr.esgi.deezerplayer.R
 import fr.esgi.deezerplayer.data.api.TrackAPI
+import fr.esgi.deezerplayer.data.model.Track
 import fr.esgi.deezerplayer.data.repositories.TrackRepository
 import fr.esgi.deezerplayer.databinding.AlbumDetailFragmentBinding
+import fr.esgi.deezerplayer.util.BindingUtils
 import fr.esgi.deezerplayer.view.MainActivity
 import fr.esgi.deezerplayer.view.RVClickListener
 import fr.esgi.deezerplayer.view.albumdetail.viewmodel.AlbumDetailViewModel
@@ -45,6 +47,7 @@ class AlbumDetailFragment : Fragment(), RVClickListener {
         )
         // Set variable dans XML (album) par valeur (albumItem)
         viewBinding.album = args.albumItem
+        viewBinding.handler = BindingUtils()
         return viewBinding.root
     }
 
@@ -76,6 +79,10 @@ class AlbumDetailFragment : Fragment(), RVClickListener {
                 )
                 it.setHasFixedSize(true)
                 it.adapter = TrackAdapter(tracks, this)
+                val trackDeepLink = tracks.find {song -> song.id == args.trackId }
+                trackDeepLink?.let { track ->
+                    clickTrack(track)
+                }
             }
         })
     }
@@ -88,47 +95,25 @@ class AlbumDetailFragment : Fragment(), RVClickListener {
             val toolbar: Toolbar = findViewById(R.id.toolbar)
             toolbar.setNavigationOnClickListener { requireActivity().onBackPressed() }
         }
-        // gere back button -> si player ouvert plein ecran -> le reduit au lieu de retour arriere
-       /* activity?.onBackPressedDispatcher?.addCallback(viewLifecycleOwner, object : OnBackPressedCallback(true) {
-            override fun handleOnBackPressed() {
-                if (playerPanel.panelState == SlidingUpPanelLayout.PanelState.EXPANDED) {
-                    // reduit UI Player
-                    playerPanel.panelState = SlidingUpPanelLayout.PanelState.COLLAPSED
-                } else
-                    findNavController().popBackStack()
-            }
-        })*/
     }
 
-    override fun <Track> onRecyclerViewItemClick(view: View, data: Track) {
-        val track = data as fr.esgi.deezerplayer.data.model.Track
+    private fun clickTrack(track: Track) {
         mainBinding.track = track
         mainBinding.album = args.albumItem
+        mainBinding.handler = BindingUtils()
         viewModel.setTrackList(viewModel.tracks.value)
         viewModel.setCurrentTrack(track)
+        viewModel.setAlbum(args.albumItem)
 
         val fragment = activity as MainActivity
-        fragment.updatePlayerUI(fragment.findViewById(R.id.player_sliding), track)
+        fragment.updatePlayerUI()
         fragment.updateUIPlayingTrack(false)
         viewModel.startPlayer(track, args.albumItem)
     }
 
-
-    /*override fun onStop() {
-        super.onStop()
-        if (requireActivity().isChangingConfigurations && viewModel.playerAdapter.isPlaying()) {
-            Log.d("toto", "onStop: don't release MediaPlayer as screen is rotating & playing")
-        } else {
-            viewModel.playerAdapter.release()
-            Log.d("toto", "onStop: release MediaPlayer")
-        }
-    }*/
-
-    // Permet lecture background mais l'app doit etre tjrs ouverte -> detruit quand change d'ecran
-    override fun onDestroy() {
-        super.onDestroy()
-       // viewModel.playerAdapter.release()
-        Log.d("toto", "onDestroy: release MediaPlayer")
+    override fun <Track> onRecyclerViewItemClick(view: View, data: Track) {
+        val track = data as fr.esgi.deezerplayer.data.model.Track
+        clickTrack(track)
     }
 
 }

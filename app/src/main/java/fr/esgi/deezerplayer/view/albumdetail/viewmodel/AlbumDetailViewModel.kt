@@ -1,20 +1,17 @@
 package fr.esgi.deezerplayer.view.albumdetail.viewmodel
 
 import android.content.Context
-import android.content.Intent
-import android.os.Bundle
-import android.os.Parcelable
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import fr.esgi.deezerplayer.R
 import fr.esgi.deezerplayer.data.model.Album
 import fr.esgi.deezerplayer.data.model.Track
-import fr.esgi.deezerplayer.data.model.musicplayer.Constants
-import fr.esgi.deezerplayer.data.model.musicplayer.NotificationService
+import fr.esgi.deezerplayer.data.model.musicplayer.CreateNotification
 import fr.esgi.deezerplayer.data.model.musicplayer.Player
 import fr.esgi.deezerplayer.data.repositories.TrackRepository
 import fr.esgi.deezerplayer.util.Coroutines
-import fr.esgi.deezerplayer.view.MainActivity
+import fr.esgi.deezerplayer.view.AppWidgetHandle
 import kotlinx.coroutines.Job
 
 class AlbumDetailViewModel(
@@ -56,14 +53,15 @@ class AlbumDetailViewModel(
         _playerAdapter.setTrackList(tracks)
     }
 
+    fun setAlbum(album: Album?) {
+        _playerAdapter.setAlbum(album)
+    }
+
     fun startPlayer(track: Track, album: Album) {
         _playerAdapter.loadTrack(track.song)
-        // display Notification
-        val serviceIntent = Intent(context, NotificationService::class.java)
-        serviceIntent.putExtra("album", album)
-        serviceIntent.putExtra("track", track)
-        serviceIntent.action = Constants.ACTION.STARTFOREGROUND_ACTION
-        context.startService(serviceIntent)
+        CreateNotification.createNotification(context, album, track, R.drawable.ic_pause, 1, ((tracks.value?.size
+            ?: 2) - 1))
+     //   AppWidgetHandle.updateAppWidget(context)
     }
 
 }
