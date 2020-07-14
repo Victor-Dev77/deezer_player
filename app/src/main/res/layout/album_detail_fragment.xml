@@ -52,13 +52,13 @@
 
             <androidx.core.widget.NestedScrollView
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="match_parent"
                 app:layout_constraintTop_toBottomOf="@+id/toolbar"
                 android:background="@color/colorPrimaryDark">
 
                 <androidx.constraintlayout.widget.ConstraintLayout
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
+                    android:layout_height="match_parent">
 
                     <com.facebook.shimmer.ShimmerFrameLayout
                         android:id="@+id/album_detail_shimmer"
@@ -124,6 +124,19 @@
                         app:date_album="@{album.releaseDate}"
                         tools:text="7 nov. 2019" />
 
+                    <TextView
+                        android:id="@+id/no_tracks"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:text="@string/noTrack"
+                        app:layout_constraintTop_toBottomOf="@+id/album_detail_date"
+                        android:textColor="@color/white"
+                        android:textStyle="bold"
+                        android:textSize="20sp"
+                        android:layout_marginTop="50dp"
+                        android:gravity="center"
+                        android:visibility="gone"/>
+
                     <androidx.recyclerview.widget.RecyclerView
                         android:id="@+id/tracks_rcv"
                         android:layout_width="match_parent"
@@ -131,7 +144,8 @@
                         android:layout_marginTop="20dp"
                         app:layout_constraintTop_toBottomOf="@+id/album_detail_date"
                         tools:itemCount="8"
-                        tools:listitem="@layout/item_track_recyclerview" />
+                        tools:listitem="@layout/item_track_recyclerview"
+                        android:visibility="gone"/>
 
                     <TextView
                         android:id="@+id/spacer"

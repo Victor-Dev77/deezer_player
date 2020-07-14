@@ -67,21 +67,29 @@ class AlbumDetailFragment : Fragment(), RVClickListener {
         viewModel.getTracks(args.albumItem.id)
 
         viewModel.tracks.observe(viewLifecycleOwner, Observer { tracks ->
-            // tracks_rcv = id recyclerview dans XML <=> comme findviewbyid
-            tracks_rcv.also {
-                // init recyclerview
-                it.layoutManager = LinearLayoutManager(requireContext())
-                // desactive scroll recyclerview donc scroll ce fait avec
-                // NestedScrollView dans XML => permet de scroller toute la vue et pas seulement les tracks
-                it.isNestedScrollingEnabled = false
-                it.addItemDecoration(
-                    DividerItemDecoration(context, DividerItemDecoration.VERTICAL)
-                )
-                it.setHasFixedSize(true)
-                it.adapter = TrackAdapter(tracks, this)
-                val trackDeepLink = tracks.find {song -> song.id == args.trackId }
-                trackDeepLink?.let { track ->
-                    clickTrack(track)
+            if (tracks.isEmpty()) {
+                no_tracks.visibility = View.VISIBLE
+                tracks_rcv.visibility = View.GONE
+            }
+            else {
+                no_tracks.visibility = View.GONE
+                tracks_rcv.visibility = View.VISIBLE
+                // tracks_rcv = id recyclerview dans XML <=> comme findviewbyid
+                tracks_rcv.also {
+                    // init recyclerview
+                    it.layoutManager = LinearLayoutManager(requireContext())
+                    // desactive scroll recyclerview donc scroll ce fait avec
+                    // NestedScrollView dans XML => permet de scroller toute la vue et pas seulement les tracks
+                    it.isNestedScrollingEnabled = false
+                    it.addItemDecoration(
+                        DividerItemDecoration(context, DividerItemDecoration.VERTICAL)
+                    )
+                    it.setHasFixedSize(true)
+                    it.adapter = TrackAdapter(tracks, this)
+                    val trackDeepLink = tracks.find {song -> song.id == args.trackId }
+                    trackDeepLink?.let { track ->
+                        clickTrack(track)
+                    }
                 }
             }
         })

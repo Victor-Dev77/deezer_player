@@ -8,7 +8,8 @@ class TrackResponseMapper {
 
     fun map(tracksResponse: TrackResponseDTO): List<Track> {
         val trackListDTO = tracksResponse.trackList // = "data" du JSON
-
+        if (trackListDTO == null)
+            return ArrayList()
         return trackListDTO.map { trackDto ->
             val track: TrackDTO = trackDto.alternative ?: trackDto
             Track(

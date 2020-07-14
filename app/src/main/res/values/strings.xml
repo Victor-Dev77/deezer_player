@@ -14,6 +14,7 @@
     <string name="imagePause">Image pause</string>
     <string name="imageNext">Image next</string>
     <string name="initCurrentPosition">0:00</string>
+    <string name="noTrack">Pas de musique disponible</string>
 
     <!-- Heading for the app widget ID panel. -->
     <string name="widget_id_label">Widget ID</string>
