@@ -1,4 +1,4 @@
-package fr.esgi.deezerplayer.view
+package fr.esgi.deezerplayer.features
 
 import android.view.View
 

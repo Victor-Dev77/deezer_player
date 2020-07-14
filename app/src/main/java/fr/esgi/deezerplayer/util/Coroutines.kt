@@ -9,10 +9,10 @@ import kotlinx.coroutines.launch
 // et un callback une fois la fonction finie
 object Coroutines {
 
-    fun<T: Any> ioThenMain(work: suspend (() -> T?), callback: ((T?) -> Unit)) =
+    fun <T : Any> ioThenMain(work: suspend (() -> T?), callback: ((T?) -> Unit)) =
         // cette ligne créer la coroutine et la lance sur le Thread Main
         CoroutineScope(Dispatchers.Main).launch {
-            val data = CoroutineScope(Dispatchers.IO).async  rt@{
+            val data = CoroutineScope(Dispatchers.IO).async rt@{
                 return@rt work()
             }.await()
             callback(data)
@@ -23,13 +23,13 @@ object Coroutines {
         Dispatchers.Main -
         Utilisez ce répartiteur pour exécuter une coroutine sur le fil principal Android.
         Cela doit être utilisé uniquement pour interagir avec l'interface utilisateur et effectuer un travail rapide.
-        Les exemples incluent l'appel de suspendfonctions, l'exécution d'opérations de structure d'interface utilisateur Android
+        Les exemples incluent l'appel de suspend fonctions, l'exécution d'opérations de structure d'interface utilisateur Android
         et la mise à jour d' LiveData objets.
 
 
         Dispatchers.IO -
         Ce répartiteur est optimisé pour effectuer des E / S disque ou réseau en dehors du thread principal.
-        Les exemples incluent l'utilisation du composant Room ,
+        Les exemples incluent l'utilisation du composant Room,
         la lecture ou l'écriture dans des fichiers et l'exécution de toute opération réseau.
 
 

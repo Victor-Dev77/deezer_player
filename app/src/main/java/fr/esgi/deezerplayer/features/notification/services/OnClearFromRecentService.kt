@@ -1,10 +1,10 @@
-package fr.esgi.deezerplayer.services
+package fr.esgi.deezerplayer.features.notification.services
 
 import android.app.Service
 import android.content.Intent
 import android.os.IBinder
 
-class OnClearFromRecentService: Service() {
+class OnClearFromRecentService : Service() {
 
     override fun onBind(intent: Intent?): IBinder? {
         return null

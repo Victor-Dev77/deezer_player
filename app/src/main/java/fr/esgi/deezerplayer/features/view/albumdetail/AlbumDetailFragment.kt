@@ -1,7 +1,6 @@
-package fr.esgi.deezerplayer.view.albumdetail
+package fr.esgi.deezerplayer.features.view.albumdetail
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -16,19 +15,18 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import fr.esgi.deezerplayer.R
 import fr.esgi.deezerplayer.data.api.TrackAPI
 import fr.esgi.deezerplayer.data.model.Track
-import fr.esgi.deezerplayer.data.repositories.TrackRepository
+import fr.esgi.deezerplayer.data.repository.TrackRepository
 import fr.esgi.deezerplayer.databinding.AlbumDetailFragmentBinding
 import fr.esgi.deezerplayer.util.BindingUtils
-import fr.esgi.deezerplayer.view.MainActivity
-import fr.esgi.deezerplayer.view.RVClickListener
-import fr.esgi.deezerplayer.view.albumdetail.viewmodel.AlbumDetailViewModel
-import fr.esgi.deezerplayer.view.albumdetail.viewmodel.AlbumDetailViewModelFactory
-import fr.esgi.deezerplayer.view.mainBinding
+import fr.esgi.deezerplayer.features.BaseViewModelFactory
+import fr.esgi.deezerplayer.features.MainActivity
+import fr.esgi.deezerplayer.features.RVClickListener
+import fr.esgi.deezerplayer.features.mainBinding
 import kotlinx.android.synthetic.main.album_detail_fragment.*
 
-class AlbumDetailFragment : Fragment(), RVClickListener {
+class AlbumDetailFragment : Fragment(),
+    RVClickListener {
 
-    private lateinit var factory: AlbumDetailViewModelFactory
     private lateinit var viewModel: AlbumDetailViewModel
 
     // recupere parametres envoyé dans la navigation
@@ -56,11 +54,7 @@ class AlbumDetailFragment : Fragment(), RVClickListener {
 
         val api = TrackAPI()
         val repository = TrackRepository(api)
-        factory =
-            AlbumDetailViewModelFactory(
-                this@AlbumDetailFragment.requireContext(),
-                repository
-            )
+        val factory = BaseViewModelFactory { AlbumDetailViewModel(this@AlbumDetailFragment.requireContext(), repository) }
         viewModel = ViewModelProviders.of(this, factory).get(AlbumDetailViewModel::class.java)
 
         // Recupère les tracks (api request)
@@ -70,8 +64,7 @@ class AlbumDetailFragment : Fragment(), RVClickListener {
             if (tracks.isEmpty()) {
                 no_tracks.visibility = View.VISIBLE
                 tracks_rcv.visibility = View.GONE
-            }
-            else {
+            } else {
                 no_tracks.visibility = View.GONE
                 tracks_rcv.visibility = View.VISIBLE
                 // tracks_rcv = id recyclerview dans XML <=> comme findviewbyid
@@ -81,12 +74,10 @@ class AlbumDetailFragment : Fragment(), RVClickListener {
                     // desactive scroll recyclerview donc scroll ce fait avec
                     // NestedScrollView dans XML => permet de scroller toute la vue et pas seulement les tracks
                     it.isNestedScrollingEnabled = false
-                    it.addItemDecoration(
-                        DividerItemDecoration(context, DividerItemDecoration.VERTICAL)
-                    )
+                    it.addItemDecoration(DividerItemDecoration(context, DividerItemDecoration.VERTICAL))
                     it.setHasFixedSize(true)
                     it.adapter = TrackAdapter(tracks, this)
-                    val trackDeepLink = tracks.find {song -> song.id == args.trackId }
+                    val trackDeepLink = tracks.find { song -> song.id == args.trackId }
                     trackDeepLink?.let { track ->
                         clickTrack(track)
                     }

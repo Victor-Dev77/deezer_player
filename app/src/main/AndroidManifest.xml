@@ -16,7 +16,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".view.MainActivity"
+        <activity android:name=".features.MainActivity"
             android:screenOrientation="portrait"
             tools:ignore="LockedOrientationActivity">
             <intent-filter>
@@ -37,11 +37,11 @@
         </activity>
 
         <!-- Notification -->
-        <receiver android:name=".services.NotificationActionService"/>
-        <service android:name=".services.OnClearFromRecentService"/>
+        <receiver android:name="fr.esgi.deezerplayer.features.notification.services.NotificationActionService"/>
+        <service android:name="fr.esgi.deezerplayer.features.notification.services.OnClearFromRecentService"/>
 
         <!-- App Widget Launcher -->
-        <receiver android:name=".view.AppWidget">
+        <receiver android:name=".features.appwidget.AppWidget">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE"/>
             </intent-filter>

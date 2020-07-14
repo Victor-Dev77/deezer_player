@@ -14,7 +14,7 @@ interface AlbumAPI {
     suspend fun getAlbums(): Response<AlbumResponseDTO>
 
     // Modele de requette http: @GET => morceau d'url a getter
-                             // @Query => param a envoyer dans la req
+    // @Query => param a envoyer dans la req
     /* @GET("?method=flickr.photos.getInfo")
     fun getPhotoInfo(@Query("photo_id") photoId: String): Call<PhotoDetailDTO>*/
 
@@ -33,7 +33,7 @@ interface AlbumAPI {
 
 
     // Créer le client HTTP avec Stetho (lib) pour voir
-    // et intercepter le reseau (req http) si ya une merde
+    // et intercepter le reseau (req http) si ya une erreur/exception
 
     /*private fun createOkHttpClient(): OkHttpClient {
         return OkHttpClient.Builder()

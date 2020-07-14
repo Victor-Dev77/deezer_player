@@ -1,4 +1,4 @@
-package fr.esgi.deezerplayer.view
+package fr.esgi.deezerplayer.features.appwidget
 
 
 import android.app.PendingIntent
@@ -6,14 +6,12 @@ import android.appwidget.AppWidgetManager
 import android.appwidget.AppWidgetProvider
 import android.content.Context
 import android.content.Intent
-import android.util.Log
 import android.view.View
 import android.widget.RemoteViews
-import android.widget.Toast
 import fr.esgi.deezerplayer.R
-import fr.esgi.deezerplayer.data.model.musicplayer.ConstantActionBtnPlayer
+import fr.esgi.deezerplayer.features.notification.ConstantActionBtnPlayer
 import fr.esgi.deezerplayer.data.model.musicplayer.Player
-import fr.esgi.deezerplayer.services.NotificationActionService
+import fr.esgi.deezerplayer.features.notification.services.NotificationActionService
 
 class AppWidget : AppWidgetProvider() {
 
@@ -33,9 +31,14 @@ class AppWidget : AppWidgetProvider() {
 
         // Construct the RemoteViews object.
         val views = RemoteViews(context.packageName, R.layout.widget_demo)
-        views.setTextViewText(R.id.appwidget_update_title_track, Player.getCurrentTrack()?.title ?: context.resources.getString(R.string.widget_title_track))
         views.setTextViewText(
-            R.id.appwidget_update_artist_name, Player.getAlbum()?.artist?.name ?: context.resources.getString(
+            R.id.appwidget_update_title_track,
+            Player.getCurrentTrack()?.title
+                ?: context.resources.getString(R.string.widget_title_track)
+        )
+        views.setTextViewText(
+            R.id.appwidget_update_artist_name,
+            Player.getAlbum()?.artist?.name ?: context.resources.getString(
                 R.string.widget_artist_name
             )
         )
@@ -90,7 +93,13 @@ class AppWidget : AppWidgetProvider() {
         appWidgetManager.updateAppWidget(appWidgetId, views)
     }
 
-    private fun setPlayerAction(context: Context, action: String, views: RemoteViews, btnView: Int, appWidgetId: Int) {
+    private fun setPlayerAction(
+        context: Context,
+        action: String,
+        views: RemoteViews,
+        btnView: Int,
+        appWidgetId: Int
+    ) {
         val intentAction = Intent(context, NotificationActionService::class.java)
         intentAction.action = action //AppWidgetManager.ACTION_APPWIDGET_UPDATE
         // Include the widget ID to be updated as an intent extra.

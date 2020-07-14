@@ -8,7 +8,8 @@ import android.util.Log
 import fr.esgi.deezerplayer.R
 import fr.esgi.deezerplayer.data.model.Album
 import fr.esgi.deezerplayer.data.model.Track
-import fr.esgi.deezerplayer.view.AppWidgetHandle
+import fr.esgi.deezerplayer.features.appwidget.AppWidgetHandle
+import fr.esgi.deezerplayer.features.notification.CreateNotification
 import java.util.concurrent.Executors
 import java.util.concurrent.ScheduledExecutorService
 import java.util.concurrent.TimeUnit
@@ -68,7 +69,6 @@ object Player : PlayerAdapter, MediaPlayer.OnPreparedListener,
         ####    LISTENER    ######
      */
     override fun onPrepared(mp: MediaPlayer?) {
-        Log.d("toto", "MediaPlayer prepared")
         //TODO: click track afficher loader. une fois ici envoyer callback pour enlever loader et lancer play dans la vue
         initializeProgressCallback()
         //playBackgroundSound()
@@ -77,7 +77,6 @@ object Player : PlayerAdapter, MediaPlayer.OnPreparedListener,
     }
 
     override fun onCompletion(mp: MediaPlayer?) {
-        Log.d("toto", "MediaPlayer completed")
         seekTo(0)
         stopUpdatingCallbackWithPosition(true)
         currentState = PlayerState.FINISH

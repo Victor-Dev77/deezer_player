@@ -1,10 +1,10 @@
-package fr.esgi.deezerplayer.view.albumlist.viewmodel
+package fr.esgi.deezerplayer.features.view.albumlist
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import fr.esgi.deezerplayer.data.model.Album
-import fr.esgi.deezerplayer.data.repositories.AlbumRepository
+import fr.esgi.deezerplayer.data.repository.AlbumRepository
 import fr.esgi.deezerplayer.util.Coroutines
 import kotlinx.coroutines.Job
 
@@ -33,7 +33,7 @@ class AlbumListViewModel(
     // annule coroutine si la view est détruite
     override fun onCleared() {
         super.onCleared()
-        if(::job.isInitialized) job.cancel()
+        if (::job.isInitialized) job.cancel()
     }
 
 }

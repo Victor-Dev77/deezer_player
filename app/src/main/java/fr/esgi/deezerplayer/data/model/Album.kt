@@ -11,4 +11,5 @@ data class Album(
     val NBTracks: Int,
     val releaseDate: String,
     val trackList: String,
-    val artist: Artist) : Parcelable
+    val artist: Artist
+) : Parcelable

@@ -16,7 +16,6 @@ data class AlbumDTO(
     @SerializedName("release_date") val release_date: String,
     @SerializedName("tracklist") val track_list: String,
     @SerializedName("alternative") val alternative: AlbumDTO?,
-    // si on veut recup l'artiste, ajouter cette ligne
     @SerializedName("artist") val artist: ArtistDTO
 )
 

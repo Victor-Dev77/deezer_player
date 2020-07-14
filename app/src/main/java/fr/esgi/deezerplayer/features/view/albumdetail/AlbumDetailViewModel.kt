@@ -1,4 +1,4 @@
-package fr.esgi.deezerplayer.view.albumdetail.viewmodel
+package fr.esgi.deezerplayer.features.view.albumdetail
 
 import android.content.Context
 import androidx.lifecycle.LiveData
@@ -7,11 +7,10 @@ import androidx.lifecycle.ViewModel
 import fr.esgi.deezerplayer.R
 import fr.esgi.deezerplayer.data.model.Album
 import fr.esgi.deezerplayer.data.model.Track
-import fr.esgi.deezerplayer.data.model.musicplayer.CreateNotification
+import fr.esgi.deezerplayer.features.notification.CreateNotification
 import fr.esgi.deezerplayer.data.model.musicplayer.Player
-import fr.esgi.deezerplayer.data.repositories.TrackRepository
+import fr.esgi.deezerplayer.data.repository.TrackRepository
 import fr.esgi.deezerplayer.util.Coroutines
-import fr.esgi.deezerplayer.view.AppWidgetHandle
 import kotlinx.coroutines.Job
 
 class AlbumDetailViewModel(
@@ -59,9 +58,11 @@ class AlbumDetailViewModel(
 
     fun startPlayer(track: Track, album: Album) {
         _playerAdapter.loadTrack(track.song)
-        CreateNotification.createNotification(context, album, track, R.drawable.ic_pause, 1, ((tracks.value?.size
-            ?: 2) - 1))
-     //   AppWidgetHandle.updateAppWidget(context)
+        CreateNotification.createNotification(
+            context, album, track, R.drawable.ic_pause, 1, ((tracks.value?.size
+                ?: 2) - 1)
+        )
+        //   AppWidgetHandle.updateAppWidget(context)
     }
 
 }

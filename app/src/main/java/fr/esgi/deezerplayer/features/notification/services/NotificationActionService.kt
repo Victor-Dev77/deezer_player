@@ -1,4 +1,4 @@
-package fr.esgi.deezerplayer.services
+package fr.esgi.deezerplayer.features.notification.services
 
 import android.content.BroadcastReceiver
 import android.content.Context

@@ -1,4 +1,4 @@
-package fr.esgi.deezerplayer.data.model.musicplayer
+package fr.esgi.deezerplayer.features.notification
 
 import android.app.Notification
 import android.app.NotificationChannel
@@ -19,8 +19,9 @@ import com.squareup.picasso.Picasso
 import fr.esgi.deezerplayer.R
 import fr.esgi.deezerplayer.data.model.Album
 import fr.esgi.deezerplayer.data.model.Track
-import fr.esgi.deezerplayer.services.NotificationActionService
-import fr.esgi.deezerplayer.services.OnClearFromRecentService
+import fr.esgi.deezerplayer.data.model.musicplayer.Player
+import fr.esgi.deezerplayer.features.notification.services.NotificationActionService
+import fr.esgi.deezerplayer.features.notification.services.OnClearFromRecentService
 import fr.esgi.deezerplayer.util.Coroutines
 
 
@@ -72,7 +73,6 @@ class CreateNotification {
             size: Int
         ) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                Log.d("toto", "create notif")
                 val notificationManagerCompat = NotificationManagerCompat.from(context)
                 val mediaSessionCompat = MediaSessionCompat(context, "tag")
 
@@ -134,9 +134,15 @@ class CreateNotification {
                 Coroutines.ioThenMain(
                     { Picasso.get().load(album?.cover).get() },
                     {
-                        bmp = it ?: BitmapFactory.decodeResource(context.resources, R.drawable.ic_music_note)
+                        bmp = it ?: BitmapFactory.decodeResource(
+                            context.resources,
+                            R.drawable.ic_music_note
+                        )
 
-                        notification = NotificationCompat.Builder(context, CHANNEL_ID)
+                        notification = NotificationCompat.Builder(
+                            context,
+                            CHANNEL_ID
+                        )
                             .setSmallIcon(R.drawable.ic_music_note)
                             .setContentTitle(track?.title)
                             .setContentText(album?.artist?.name)
@@ -148,15 +154,19 @@ class CreateNotification {
                             .addAction(playButton, "Play", pendingIntentPlay)
                             .addAction(drawNext, "Next", pendingIntentNext)
                             .addAction(drawClose, "Close", pendingIntentClose)
-                            .setStyle(androidx.media.app.NotificationCompat.MediaStyle()
-                                .setShowActionsInCompactView(0, 1, 2)
-                                .setMediaSession(mediaSessionCompat.sessionToken)
+                            .setStyle(
+                                androidx.media.app.NotificationCompat.MediaStyle()
+                                    .setShowActionsInCompactView(0, 1, 2)
+                                    .setMediaSession(mediaSessionCompat.sessionToken)
                             )
 
                             .setPriority(NotificationCompat.PRIORITY_LOW)
                             .build()
 
-                        notificationManagerCompat.notify(1, notification)
+                        notificationManagerCompat.notify(
+                            1,
+                            notification
+                        )
 
                     } // callback
                 )

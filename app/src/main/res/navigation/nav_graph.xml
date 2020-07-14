@@ -7,7 +7,7 @@
 
     <fragment
         android:id="@+id/albumListFragment"
-        android:name="fr.esgi.deezerplayer.view.albumlist.AlbumListFragment"
+        android:name="fr.esgi.deezerplayer.features.view.albumlist.AlbumListFragment"
         android:label="AlbumListFragment"
         tools:layout="@layout/album_list_fragment" >
         <action
@@ -18,7 +18,7 @@
     </fragment>
     <fragment
         android:id="@+id/albumDetailFragment"
-        android:name="fr.esgi.deezerplayer.view.albumdetail.AlbumDetailFragment"
+        android:name="fr.esgi.deezerplayer.features.view.albumdetail.AlbumDetailFragment"
         android:label="album_detail_fragment"
         tools:layout="@layout/album_detail_fragment" >
         <argument

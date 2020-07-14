@@ -1,4 +1,4 @@
-package fr.esgi.deezerplayer.view
+package fr.esgi.deezerplayer.features.appwidget
 
 import android.appwidget.AppWidgetManager
 import android.content.ComponentName
@@ -16,12 +16,12 @@ class AppWidgetHandle {
             intentUpdate.action = AppWidgetManager.ACTION_APPWIDGET_UPDATE
 
             val ids = AppWidgetManager.getInstance(context)
-                    .getAppWidgetIds(
-                        ComponentName(
-                            context,
-                            AppWidget::class.java
-                        )
+                .getAppWidgetIds(
+                    ComponentName(
+                        context,
+                        AppWidget::class.java
                     )
+                )
             intentUpdate.putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, ids)
             context.sendBroadcast(intentUpdate)
         }

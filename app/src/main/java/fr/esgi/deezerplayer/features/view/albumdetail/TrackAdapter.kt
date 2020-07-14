@@ -1,4 +1,4 @@
-package fr.esgi.deezerplayer.view.albumdetail
+package fr.esgi.deezerplayer.features.view.albumdetail
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
@@ -7,9 +7,9 @@ import androidx.recyclerview.widget.RecyclerView
 import fr.esgi.deezerplayer.R
 import fr.esgi.deezerplayer.data.model.Track
 import fr.esgi.deezerplayer.databinding.ItemTrackRecyclerviewBinding
-import fr.esgi.deezerplayer.view.RVClickListener
+import fr.esgi.deezerplayer.features.RVClickListener
 
-class TrackAdapter (
+class TrackAdapter(
     private val tracks: List<Track>,
     private val listener: RVClickListener
 ) : RecyclerView.Adapter<TrackAdapter.TrackViewHolder>() {
@@ -36,7 +36,7 @@ class TrackAdapter (
         }
     }
 
-    class TrackViewHolder (
+    class TrackViewHolder(
         // comme itemView (vue d'un item d'un recyclerview) mais dataBinding <layout> in item_album_recyclerview d'où le nom du type ("ItemAlbumRecyclerviewBinding")
         val recyclerViewTrackBinding: ItemTrackRecyclerviewBinding
     ) : RecyclerView.ViewHolder(recyclerViewTrackBinding.root) {

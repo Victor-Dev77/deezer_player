@@ -1,4 +1,4 @@
-package fr.esgi.deezerplayer.view.albumlist
+package fr.esgi.deezerplayer.features.view.albumlist
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
@@ -7,7 +7,7 @@ import androidx.recyclerview.widget.RecyclerView
 import fr.esgi.deezerplayer.R
 import fr.esgi.deezerplayer.data.model.Album
 import fr.esgi.deezerplayer.databinding.ItemAlbumRecyclerviewBinding
-import fr.esgi.deezerplayer.view.RVClickListener
+import fr.esgi.deezerplayer.features.RVClickListener
 
 
 class AlbumAdapter(
@@ -24,14 +24,16 @@ class AlbumAdapter(
     }*/
 
     // Avec DataBinding
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) : AlbumViewHolder {
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): AlbumViewHolder {
         val viewBinding = DataBindingUtil.inflate<ItemAlbumRecyclerviewBinding>(
             LayoutInflater.from(parent.context),
             R.layout.item_album_recyclerview,
             parent,
             false
         )
-        return AlbumViewHolder(viewBinding)
+        return AlbumViewHolder(
+            viewBinding
+        )
     }
 
 

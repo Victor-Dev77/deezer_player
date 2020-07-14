@@ -56,7 +56,7 @@ class BindingUtils {
     fun shareAlbum(view: View, idAlbum: Int) {
         val sendIntent = Intent().apply {
             action = Intent.ACTION_SEND
-            putExtra (Intent.EXTRA_TEXT, "deezerplayer://player?album=$idAlbum")
+            putExtra(Intent.EXTRA_TEXT, "deezerplayer://player?album=$idAlbum")
             type = "text / plain"
         }
 
@@ -67,7 +67,7 @@ class BindingUtils {
     fun shareTrack(view: View, idAlbum: Int, idTrack: Int) {
         val sendIntent = Intent().apply {
             action = Intent.ACTION_SEND
-            putExtra (Intent.EXTRA_TEXT, "deezerplayer://player?album=$idAlbum&track=$idTrack")
+            putExtra(Intent.EXTRA_TEXT, "deezerplayer://player?album=$idAlbum&track=$idTrack")
             type = "text / plain"
         }
 

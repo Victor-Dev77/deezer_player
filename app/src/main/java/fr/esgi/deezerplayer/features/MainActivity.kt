@@ -1,4 +1,4 @@
-package fr.esgi.deezerplayer.view
+package fr.esgi.deezerplayer.features
 
 import android.net.Uri
 import android.os.Build
@@ -16,10 +16,11 @@ import com.sothree.slidinguppanel.SlidingUpPanelLayout
 import fr.esgi.deezerplayer.R
 import fr.esgi.deezerplayer.data.api.TrackAPI
 import fr.esgi.deezerplayer.data.model.musicplayer.*
-import fr.esgi.deezerplayer.data.repositories.TrackRepository
+import fr.esgi.deezerplayer.data.repository.TrackRepository
 import fr.esgi.deezerplayer.databinding.ActivityMainBinding
+import fr.esgi.deezerplayer.features.notification.CreateNotification
+import fr.esgi.deezerplayer.features.view.albumlist.AlbumListFragmentDirections
 import fr.esgi.deezerplayer.util.Coroutines
-import fr.esgi.deezerplayer.view.albumlist.AlbumListFragmentDirections
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -27,7 +28,8 @@ import java.lang.Exception
 
 lateinit var mainBinding: ActivityMainBinding
 
-class MainActivity : AppCompatActivity(), PlayerStateListener, SlidingUpPanelLayout.PanelSlideListener {
+class MainActivity : AppCompatActivity(), PlayerStateListener,
+    SlidingUpPanelLayout.PanelSlideListener {
 
     private lateinit var playerPanel: SlidingUpPanelLayout
     private lateinit var playerBar: LinearLayout
@@ -80,7 +82,6 @@ class MainActivity : AppCompatActivity(), PlayerStateListener, SlidingUpPanelLay
         }
 
 
-
         // NOTIFICATION
         CreateNotification.createChannel(this)
         CreateNotification.registerReceiver(this)
@@ -95,7 +96,6 @@ class MainActivity : AppCompatActivity(), PlayerStateListener, SlidingUpPanelLay
         pauseBtnBar = findViewById(R.id.player_btn_pause)
         pauseBtnPlayer = findViewById(R.id.player_content_btn_pause)
         playerBar = findViewById(R.id.player_bar)
-        playerPanel = findViewById(R.id.player_sliding)
         playerPanel.addPanelSlideListener(this@MainActivity)
 
         // Click Listener
@@ -117,8 +117,7 @@ class MainActivity : AppCompatActivity(), PlayerStateListener, SlidingUpPanelLay
                 if (playerPanel.panelState == SlidingUpPanelLayout.PanelState.EXPANDED) {
                     // reduit UI Player
                     playerPanel.panelState = SlidingUpPanelLayout.PanelState.COLLAPSED
-                }
-                else {
+                } else {
                     val navHostFragment =
                         supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as NavHostFragment
                     val navController: NavController = navHostFragment.navController
@@ -187,9 +186,7 @@ class MainActivity : AppCompatActivity(), PlayerStateListener, SlidingUpPanelLay
     }
 
     override fun onTrackFinished() {
-        Toast.makeText(this, "track finish", Toast.LENGTH_SHORT).show()
         updateUIPlayingTrack(false)
-        //passer a track suivante
         nextTrack()
     }
 
@@ -206,21 +203,16 @@ class MainActivity : AppCompatActivity(), PlayerStateListener, SlidingUpPanelLay
         }
     }
 
-    override fun onPanelSlide(panel: View?, slideOffset: Float) {
-        //Log.d("toto", "offset: " + slideOffset)
-        // TODO: ici - utiliser CollapsedToolBar OU en fonction val offset set visibility player bar avec anim fadeIn
-    }
+    override fun onPanelSlide(panel: View?, slideOffset: Float) {}
 
     override fun onPanelStateChanged(
         panel: View?,
         previousState: SlidingUpPanelLayout.PanelState?,
         newState: SlidingUpPanelLayout.PanelState?
     ) {
-        // LE FAIRE DANS OnPanelSlide pour faire effet anim car la trop brusque
         if (newState == SlidingUpPanelLayout.PanelState.EXPANDED) {
             playerBar.visibility = View.GONE
-        }
-        else if (newState == SlidingUpPanelLayout.PanelState.COLLAPSED) {
+        } else if (newState == SlidingUpPanelLayout.PanelState.COLLAPSED) {
             playerBar.visibility = View.VISIBLE
         }
     }

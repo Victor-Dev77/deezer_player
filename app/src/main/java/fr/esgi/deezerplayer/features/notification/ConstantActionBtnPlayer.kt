@@ -1,4 +1,4 @@
-package fr.esgi.deezerplayer.data.model.musicplayer
+package fr.esgi.deezerplayer.features.notification
 
 class ConstantActionBtnPlayer {
     companion object {
