@@ -170,13 +170,15 @@ object Player : PlayerAdapter, MediaPlayer.OnPreparedListener,
     override fun previous(): Track? {
         if (tracksList != null && currentTrack != null) {
             pause()
-            if (currentTrack!!.trackPosition != 1) {
+            currentTrack = if (currentTrack!!.trackPosition != 1) {
                 // si c pas la 1ere track on peut previous
                 // -2 car trackPosition commence a 1 et pas 0
-                currentTrack = tracksList!![currentTrack!!.trackPosition - 2]
-                loadTrack(currentTrack!!.song)
-                return currentTrack
+                tracksList!![currentTrack!!.trackPosition - 2]
+            } else {
+                tracksList!![tracksList!!.size - 1]
             }
+            loadTrack(currentTrack!!.song)
+            return currentTrack
         }
         return null
     }
